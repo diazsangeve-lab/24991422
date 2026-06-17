@@ -1,0 +1,107 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Question 1: Coffee Hub
+
+This folder holds the Coffee Hub solution. The deliverable is a PowerPoint report,
+`Coffee_Hub_Recommendation.pptx`, that advises the entrepreneur on which roast,
+region, flavour cues and suppliers to stock. Every operation lives in a function
+in the `code` folder, and this README sources those functions, runs the analysis
+and shows the figures the deck is built from. The deck itself is assembled, end to
+end in R, by `build_deck.R`.
+
+## Loading the functions and data
+
+```{r, message = FALSE, warning = FALSE}
+gc()                                                                  # return memory to the operating system
+library(pacman)                                                       # package manager
+p_load(tidyverse, officer, flextable, stringi, ggrepel, scales)       # everything the question needs
+
+# Source in all the functions:
+# walk is the 'silent' version of map, which is similar to lapply.
+list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+The reviews carry the signal, so the loader matters. `load_coffee()` reads the csv
+as UTF-8 and transliterates the smart quotes and accents that break in Excel, then
+joins the three review columns into one searchable field. `score_keywords()` counts
+how many of the student survey words each coffee's reviews use, and
+`region_from_origin()` tags each coffee with a broad origin region.
+
+```{r, message = FALSE, warning = FALSE}
+Coffee <- load_coffee("data/Coffee/Coffee.csv")                       # load, fixing strange characters
+
+student_words <- c("sweet","chocolate","aroma","structure","finish","mouthfeel","toned","savory",
+                   "syrupy","tart","rich","juicy","acidity","zest","bright","crisp","balanced","cocoa",
+                   "velvety","delicate","floral","smooth","silky","honey","citrus","fruit","spice",
+                   "resonant","plush","deep","fresh","almond","berry","vanilla","nutty","caramel")
+
+region_lookup <- c("Ethiopia"="Ethiopia","Kenya"="Kenya","Colombia"="Colombia","Panama"="Panama",
+                   "Hawai"="Hawaii","Guatemala"="Guatemala","Sumatra|Lintong|Sulawesi|Indonesia"="Indonesia",
+                   "Costa Rica"="Costa Rica","Brazil"="Brazil","Honduras"="Honduras","Rwanda"="Rwanda")
+
+Coffee <-
+    Coffee %>%
+    score_keywords(student_words) %>%                                 # add the student match score
+    region_from_origin(region_lookup) %>%                            # tag each coffee's region
+    filter(Cost_Per_100g > 0)                                        # drop the odd zero-cost rows
+```
+
+The keyword score is the spine of the whole approach, so it is worth a check. It
+tracks the expert rating closely enough to use as a quality cue.
+
+```{r, message = FALSE, warning = FALSE}
+cor(Coffee$Student_Score, Coffee$Rating)                              # about 0.40, a real signal
+```
+
+## Figures
+
+Each figure comes from one sourced function. Lighter roasts score highest, so the
+core range should be built around them.
+
+```{r, message = FALSE, warning = FALSE}
+plot_roast(Coffee)
+```
+
+Kenya and Ethiopia reach ratings within a whisker of Panama's at about a fifth of
+the price, which makes them the value backbone.
+
+```{r, message = FALSE, warning = FALSE}
+plot_region_value(Coffee)
+```
+
+Comparing the very best coffees against the whole catalogue shows what sets them
+apart, the juicy, syrupy, floral, bright signature of washed East African coffee.
+
+```{r, message = FALSE, warning = FALSE}
+plot_flavour_fingerprint(Coffee, c("juicy","syrupy","floral","bright","balanced","rich","fruit","chocolate","crisp","cocoa"))
+```
+
+Plotting suppliers by rating and cost separates the value champions from the
+premium names.
+
+```{r, message = FALSE, warning = FALSE}
+plot_supplier_leaderboard(Coffee)
+```
+
+## Building the deck
+
+`build_deck.R` assembles these figures, the stat callouts and the starter-range
+table into the PowerPoint. It starts a deck with `read_pptx()`, places each
+element on a blank layout with `ph_with()` and `ph_location()`, and writes the
+file. The pattern looks like this, and the full script runs it from start to
+finish.
+
+```{r, eval = FALSE}
+doc <- read_pptx()                                                    # start from the default template
+doc <- add_slide(doc, layout = "Blank", master = "Office Theme")      # a fresh slide
+doc <- ph_with(doc, plot_roast(Coffee),                              # place a figure
+               location = ph_location(0.5, 1.5, 4.6, 4.4))
+# ... the remaining slides are built the same way in build_deck.R ...
+print(doc, target = "Coffee_Hub_Recommendation.pptx")                 # write the deck
+```
+
+To produce the deck, run `source("build_deck.R")` from this folder.
