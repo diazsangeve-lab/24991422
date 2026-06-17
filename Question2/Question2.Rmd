@@ -1,0 +1,324 @@
+---
+# IMPORTANT: Change settings here, but DO NOT change the spacing AT ALL.
+# Remove comments and add values where applicable.
+# The descriptions below should be self-explanatory
+
+title: "Naming a Generation: How American Culture Writes Itself Into A Cradle"
+#subtitle: "This will appear as Right Header"
+
+documentclass: "elsarticle"
+
+# --------- Thesis title (Optional - set to FALSE by default).
+# You can move the details below around as you please.
+Thesis_FP: FALSE
+# Entry1: "An unbelievable study with a title spanning multiple lines."
+# Entry2: "\\textbf{Some Guy}" # textbf for bold
+# Entry3: "A thesis submitted toward the degree of Doctor of Philosophy"
+# Uni_Logo: Tex/Logo.png # Place a logo in the indicated location (from your root, e.g. defaults to ~/Tex/Logo.png) and uncomment this line. Leave uncommented for no image
+# Logo_width: 0.3 # If using a logo - use this to set width (size) of image
+# Entry4: "Under the supervision of: \\vfill Prof. Joe Smith and Dr. Frank Smith"
+# Entry5: "Stellenbosch University"
+# Entry6: April 2020
+# Entry7:
+# Entry8:
+
+# --------- Front Page
+# Comment: ----- Follow this pattern for up to 5 authors
+AddTitle: TRUE # Use FALSE when submitting to peer reviewed platform. This will remove author names.
+Author1: "Diaz Sangeve"  # First Author - note the thanks message displayed as an italic footnote of first page.
+Ref1: "Stellenbosch University, Stellenbosch, South Africa" # First Author's Affiliation
+Email1: "24991422\\@sun.ac.za" # First Author's Email address
+
+# Author2: "John Smith"
+# Ref2: "Some other Institution, Cape Town, South Africa"
+# Email2: "John\\@gmail.com"
+# CommonAffiliation_12: TRUE # If Author 1 and 2 have a common affiliation. Works with _13, _23, etc.
+# 
+# Author3: "John Doe"
+# Email3: "Joe\\@gmail.com"
+
+CorrespAuthor_1: TRUE  # If corresponding author is author 3, e.g., use CorrespAuthor_3: TRUE
+
+# Comment out below to remove both. JEL Codes only given if keywords also given.
+# keywords: "Multivariate GARCH \\sep Kalman Filter \\sep Copula" # Use \\sep to separate
+# JELCodes: "L250 \\sep L100"
+
+# ----- Manage headers and footers:
+#BottomLFooter: $Title$
+#BottomCFooter:
+#TopLHeader: \leftmark # Adds section name at topleft. Remove comment to add it.
+BottomRFooter: "\\footnotesize Page \\thepage" # Add a '#' before this line to remove footer.
+addtoprule: TRUE
+addfootrule: TRUE               # Use if footers added. Add '#' to remove line.
+
+# --------- page margins:
+margin: 2.3 # Sides
+bottom: 2 # bottom
+top: 2.5 # Top
+HardSet_layout: TRUE # Hard-set the spacing of words in your document. This will stop LaTeX squashing text to fit on pages, e.g.
+# This is done by hard-setting the spacing dimensions. Set to FALSE if you want LaTeX to optimize this for your paper.
+
+# --------- Line numbers
+linenumbers: FALSE # Used when submitting to journal
+
+# ---------- References settings:
+# You can download cls format here: https://www.zotero.org/ - simply search for your institution. You can also edit and save cls formats here: https://editor.citationstyles.org/about/
+# Hit download, store it in Tex/ folder, and change reference below - easy.
+bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
+csl: Tex/harvard-stellenbosch-university.csl # referencing format used.
+# By default, the bibliography only displays the cited references. If you want to change this, you can comment out one of the following:
+#nocite: '@*' # Add all items in bibliography, whether cited or not
+# nocite: |  # add specific references that aren't cited
+#  @grinold2000
+#  @Someoneelse2010
+
+# ---------- General:
+RemovePreprintSubmittedTo: TRUE  # Removes the 'preprint submitted to...' at bottom of titlepage
+Journal: "Journal of Finance"   # Journal that the paper will be submitting to, if RemovePreprintSubmittedTo is set to TRUE.
+toc: TRUE                       # Add a table of contents
+numbersections: TRUE             # Should sections (and thus figures and tables) be numbered?
+fontsize: 11pt                  # Set fontsize
+linestretch: 1.2                # Set distance between lines.
+link-citations: TRUE            # This creates dynamic links to the papers in reference list.
+
+### Adding additional latex packages:
+# header-includes:
+#    - \usepackage{colortbl} # Add additional packages here.
+
+output:
+  pdf_document:
+    keep_tex: TRUE
+    template: Tex/TexDefault.txt
+    fig_width: 3.5 # Adjust default figure sizes. This can also be done in the chunks of the text.
+    fig_height: 3.5
+abstract: |
+     A baby name is a small cultural record of the year a child was born. Using the full state-level register of United States births from 1910 to 2014, together with the weekly Billboard Hot 100 since 1958 and a catalogue of HBO titles and cast credits, this report does two things for a creative agency. It measures how long popular names persist and tests the agency's belief that persistence has weakened since the 1990s, and it traces the sudden surges in naming back to the singers and screen characters that set them off. Persistence has indeed loosened since 1990, at every horizon and most sharply for boys. The surges, meanwhile, line up closely with hit records and popular premieres, and an event study shows a name responding within a year or two of the moment that created it.
+---
+
+<!-- First: Set your default preferences for chunk options: -->
+
+<!-- If you want a chunk's code to be printed, set echo = TRUE. message = FALSE stops R printing ugly package loading details in your final paper too. I also suggest setting warning = FALSE and checking for warnings in R, else you might find ugly warnings in your paper. -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.align = "center", dev = "pdf", fig.pos = "H")
+
+rm(list = ls()); gc()
+
+if(!require(pacman)) install.packages("pacman")
+pacman::p_load(tidyverse, scales, knitr, kableExtra)
+
+# Source every function in the code folder:
+list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+```{r data, include = FALSE, cache = TRUE}
+nat <- collate_names("data/US_Baby_names/Baby_Names_By_US_State.rds") # national name counts
+
+tot <- national_totals(nat) # collapsed across gender
+
+charts <- read_rds("data/US_Baby_names/charts.rds") # weekly Billboard Hot 100
+
+titles <- read_rds("data/US_Baby_names/HBO_titles.rds") # HBO titles and scores
+
+credits <- read_rds("data/US_Baby_names/HBO_credits.rds") # HBO cast and characters
+
+pers <- bind_rows(name_persistence(nat, "M"), name_persistence(nat, "F")) # persistence series
+
+ptab <- persistence_table(pers) # the summary table
+
+spikes <- find_spikes(nat) # data-driven YoY surges
+
+bb <- billboard_name_spikes(nat, charts) # singer-driven names
+
+hbo <- hbo_name_spikes(nat, titles, credits) # character-driven names
+hbo <- hbo %>%
+  mutate(across(where(is.character), 
+                ~ iconv(., to = "UTF-8", sub = ""))) # removing invalid bytes
+
+matches <- combine_matches(bb, hbo) # both, for the bubble
+
+sourced <- tag_spike_source(spikes, bb, hbo) # surges labelled by cause
+
+# Name selections:
+fade_names <- spikes  %>% 
+    filter(Count >= 2000) %>% 
+    slice_max(Growth, n = 6) %>% 
+    pull(Name)
+
+dist_names <- matches %>% 
+    filter(Ratio >= 4) %>% 
+    slice_max(Post,  n = 6) %>% 
+    pull(Name)
+
+bb_events  <- bb  %>% 
+    slice_max(Ratio, n = 5) %>% 
+    transmute(Name, Event_Year = Chart_Year)
+
+hbo_events <- hbo %>% 
+    slice_max(Ratio, n = 5) %>% 
+    transmute(Name, Event_Year = release_year)
+
+ev_events  <- matches %>% 
+    transmute(Name, Event_Year, Source)
+
+# A couple of figures quoted in the text:
+b3_pre  <- ptab %>% 
+    filter(Gender == "Boys",  Horizon == "3-year") %>% 
+    pull(`Pre-1990`)
+
+b3_post <- ptab %>% 
+    filter(Gender == "Boys",  Horizon == "3-year") %>% 
+    pull(`1990 onward`)
+
+g3_pre  <- ptab %>% 
+    filter(Gender == "Girls", Horizon == "3-year") %>% 
+    pull(`Pre-1990`)
+
+g3_post <- ptab %>% 
+    filter(Gender == "Girls", Horizon == "3-year") %>% 
+    pull(`1990 onward`)
+```
+
+<!-- ############################## -->
+<!-- # Start Writing here: -->
+<!-- ############################## -->
+
+# Naming a generation {-}
+
+A baby name carries the fingerprint of its moment. It records what its parents
+were listening to, watching and talking about in the year the child arrived. With
+the full American birth register from 1910 to 2014, alongside the Billboard Hot
+100 and a catalogue of HBO titles, that record can be read two ways. The first
+asks how durable a popular name is, and whether durability has weakened. The
+second asks what lifts a new name into use, and how quickly it answers.
+
+# Naming persistence and the 1990s hypothesis {-}
+
+Persistence is measured by taking each year's 25 most popular names for a gender
+and comparing their ranking to the same names one, two and three years later. A
+Spearman rank correlation near one means the order held, a lower value means the
+names moved or fell away.
+
+```{r fig-persist, fig.cap = "Rank persistence of the top 25 names, each year against the next three. The dashed line marks 1990.", fig.height = 2.9, fig.width = 7}
+plot_persistence(pers)
+```
+
+```{r tab-persist}
+ptab %>%
+    kable(caption = "Mean rank persistence by gender and horizon, before and from 1990",
+          booktabs = TRUE, digits = 3,
+          col.names = c("Gender", "Horizon", "Pre-1990", "1990 onward", "Change")) %>%
+    kable_styling(latex_options = c("HOLD_position"), font_size = 9)
+```
+
+- The agency's suspicion holds. Persistence falls after 1990 in every cell of the table, for both genders and at all three horizons.
+- The effect grows with distance. For boys the three-year persistence drops from `r b3_pre` to `r b3_post`, the largest fall in the table, so the further ahead you look the more a modern top name has moved.
+- Girls' names were always looser and slip less, from `r g3_pre` to `r g3_post` at three years, so the change is real but gentler than for boys.
+- For the agency this means a name borrowed from today's culture is a weaker long-term bet than it would have been a generation ago, which is exactly what the surge analysis below explains.
+
+# When a name suddenly arrives {-}
+
+The sharpest movements in naming are not drifts but spikes, and they can be found
+directly in the data as large year-on-year jumps. The most significant are
+striking, and many sit on a clear cultural event.
+
+```{r tab-surges}
+sourced %>% slice_max(Growth, n = 10) %>%
+    transmute(Year, Name, Before = Prev, After = Count, `Times bigger` = round(Growth, 1), Cause = Source) %>%
+    kable(caption = "The ten sharpest year-on-year name surges, with the cause our datasets can attribute",
+          booktabs = TRUE) %>%
+    kable_styling(latex_options = c("HOLD_position"), font_size = 9)
+```
+
+The supervisor's chart sets these out by name and year, sized by how many babies
+took the name, with colour marking whether a singer or a screen character drove
+it.
+
+```{r fig-bubble, fig.cap = "Names that surged after a hit record or a screen premiere, sized by babies at their peak.", fig.height = 3.7, fig.width = 7.5}
+plot_spike_bubble(matches)
+```
+
+A surge is not the same as a lasting name. Plotting the largest surges over their
+full life shows that most are fashions that fade within a decade.
+
+```{r fig-fade, fig.cap = "The full trajectory of the sharpest surges. Most rise steeply and fall almost as fast.", fig.height = 2.9, fig.width = 7}
+plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The sharpest surges are usually short-lived fashions")
+```
+
+- The surges are real and large. The sharpest, Katina in 1972, multiplied more than fifty times in a single year off the back of a television character.
+- Most of them fade. The same names that spike fastest tend to collapse within a few years, which is the surge-level reflection of the falling persistence in the previous section.
+- Colour ties cause to effect. Where our datasets reach the moment, screen characters and singers account for the surge, and the rest sit unexplained, waiting for the deeper look that follows.
+
+A complementary view scales each standout name to its own peak, so the shape and
+timing of each wave can be compared directly.
+
+```{r fig-dist, fig.cap = "The life of several culture-driven names, each scaled to its own peak.", fig.height = 3.4, fig.width = 7}
+plot_name_distribution(tot, dist_names)
+```
+
+# The sound and the screen {-}
+
+The surge view points at music and television without proving them. The Billboard
+and HBO datasets let us test both directly, by reading the first name of every
+charting act and every screen character and asking whether babies followed.
+
+## Named after the charts {-}
+
+```{r tab-billboard}
+bb %>% 
+    slice_max(Ratio, n = 8) %>%
+    transmute(Name, Artist = artist, `First charted` = Chart_Year, Before = Pre, Peak = Post, `Times bigger` = Ratio) %>%
+    kable(caption = "Singers whose first name surged in babies after they first reached the Billboard top ten",
+          booktabs = TRUE) %>%
+    kable_styling(latex_options = c("HOLD_position"), font_size = 9)
+```
+
+```{r fig-billboard, fig.cap = "Naming after the charts. Dotted lines mark the year each act first reached the top ten.", fig.height = 2.8, fig.width = 7}
+plot_trajectories(tot, bb_events$Name, events = bb_events, from = 1975,
+                  title = "Named after the charts", subtitle = "Babies named for chart-topping singers")
+```
+
+- The Whitney effect is real and it generalises. Whitney rises with Houston in the mid 1980s, and the same pattern repeats for Sade, Aaliyah, Mya and Rihanna, each climbing in the years after the singer broke through.
+- The clearest cases are names the chart all but created. Sade and Rihanna barely existed before their first hit and then ran into the thousands.
+
+## Named after the screen {-}
+
+```{r tab-hbo}
+hbo %>% 
+    slice_max(Ratio, n = 8) %>%
+    transmute(Name, Title = title, Released = release_year, Score = tmdb_score, Peak = Post, `Times bigger` = Ratio) %>%
+    kable(caption = "Screen characters whose first name surged in babies after the title appeared",
+          booktabs = TRUE) %>%
+    kable_styling(latex_options = c("HOLD_position"), font_size = 9)
+```
+
+```{r fig-hbo, fig.cap = "Naming after the screen. Dotted lines mark each title's release year.", fig.height = 2.8, fig.width = 7}
+plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
+                  title = "Named after the screen", subtitle = "Babies named for popular screen characters")
+```
+
+- Characters travel from the screen into the register. Dawson climbs after Dawson's Creek, Meadow after The Sopranos, and Whitley after A Different World, each within a year or two of the premiere.
+- The supervisor's Katina is the same mechanism a generation earlier, a character name that arrived the moment the show did.
+
+## How fast a culture names a child {-}
+
+Pooling every matched name and lining each one up on the year its cultural moment
+landed gives an event study, the average naming response to a hit or a premiere.
+
+```{r fig-event, fig.cap = "Average naming response around the cultural event, music against screen.", fig.height = 2.8, fig.width = 7}
+plot_event_study(tot, ev_events)
+```
+
+- The response is fast. Both music and screen names lift within a year of the event and peak inside three, so naming tracks culture almost in real time.
+- Music moves harder than screen. A hit record lifts its name more sharply than a premiere does, which fits a song's instant, repeated national reach against a show's slower build.
+
+# What names follow {-}
+
+Two findings sit together. Popular names hold their place less firmly than they
+once did, especially for boys and especially since 1990, so any name the agency
+borrows from culture should be treated as a moving target. And the thing that
+moves it is close cultural reach, the singers on the charts and the characters on
+the screen, whose names enter the register within a year or two and then, more
+often than not, recede again. A name is a fashion with a date stamp, and the data
+shows both the stamp and the fading ink.
