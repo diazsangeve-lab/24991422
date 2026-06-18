@@ -1,0 +1,321 @@
+---
+# IMPORTANT: Change settings here, but DO NOT change the spacing AT ALL.
+# Remove comments and add values where applicable.
+# The descriptions below should be self-explanatory
+
+title: "To Stream Or Not To Stream, That Is The Question"
+#subtitle: "This will appear as Right Header"
+
+documentclass: "elsarticle"
+
+# --------- Thesis title (Optional - set to FALSE by default).
+# You can move the details below around as you please.
+Thesis_FP: FALSE
+# Entry1: "An unbelievable study with a title spanning multiple lines."
+# Entry2: "\\textbf{Some Guy}" # textbf for bold
+# Entry3: "A thesis submitted toward the degree of Doctor of Philosophy"
+# Uni_Logo: Tex/Logo.png # Place a logo in the indicated location (from your root, e.g. defaults to ~/Tex/Logo.png) and uncomment this line. Leave uncommented for no image
+# Logo_width: 0.3 # If using a logo - use this to set width (size) of image
+# Entry4: "Under the supervision of: \\vfill Prof. Joe Smith and Dr. Frank Smith"
+# Entry5: "Stellenbosch University"
+# Entry6: April 2020
+# Entry7:
+# Entry8:
+
+# --------- Front Page
+# Comment: ----- Follow this pattern for up to 5 authors
+AddTitle: TRUE # Use FALSE when submitting to peer reviewed platform. This will remove author names.
+Author1: "Diaz Sangeve"  # First Author - note the thanks message displayed as an italic footnote of first page.
+Ref1: "Stellenbosch University, Stellenbosch, South Africa" # First Author's Affiliation
+Email1: "24991422\\@sun.ac.za" # First Author's Email address
+
+# Author2: "John Smith"
+# Ref2: "Some other Institution, Cape Town, South Africa"
+# Email2: "John\\@gmail.com"
+# CommonAffiliation_12: TRUE # If Author 1 and 2 have a common affiliation. Works with _13, _23, etc.
+# 
+# Author3: "John Doe"
+# Email3: "Joe\\@gmail.com"
+
+CorrespAuthor_1: TRUE  # If corresponding author is author 3, e.g., use CorrespAuthor_3: TRUE
+
+# Comment out below to remove both. JEL Codes only given if keywords also given.
+# keywords: "Multivariate GARCH \\sep Kalman Filter \\sep Copula" # Use \\sep to separate
+# JELCodes: "L250 \\sep L100"
+
+# ----- Manage headers and footers:
+#BottomLFooter: $Title$
+#BottomCFooter:
+#TopLHeader: \leftmark # Adds section name at topleft. Remove comment to add it.
+BottomRFooter: "\\footnotesize Page \\thepage" # Add a '#' before this line to remove footer.
+addtoprule: TRUE
+addfootrule: TRUE               # Use if footers added. Add '#' to remove line.
+
+# --------- page margins:
+margin: 2.3 # Sides
+bottom: 2 # bottom
+top: 2.5 # Top
+HardSet_layout: TRUE # Hard-set the spacing of words in your document. This will stop LaTeX squashing text to fit on pages, e.g.
+# This is done by hard-setting the spacing dimensions. Set to FALSE if you want LaTeX to optimize this for your paper.
+
+# --------- Line numbers
+linenumbers: FALSE # Used when submitting to journal
+
+# ---------- References settings:
+# You can download cls format here: https://www.zotero.org/ - simply search for your institution. You can also edit and save cls formats here: https://editor.citationstyles.org/about/
+# Hit download, store it in Tex/ folder, and change reference below - easy.
+bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
+csl: Tex/harvard-stellenbosch-university.csl # referencing format used.
+# By default, the bibliography only displays the cited references. If you want to change this, you can comment out one of the following:
+#nocite: '@*' # Add all items in bibliography, whether cited or not
+# nocite: |  # add specific references that aren't cited
+#  @grinold2000
+#  @Someoneelse2010
+
+# ---------- General:
+RemovePreprintSubmittedTo: TRUE  # Removes the 'preprint submitted to...' at bottom of titlepage
+Journal: "Journal of Finance"   # Journal that the paper will be submitting to, if RemovePreprintSubmittedTo is set to TRUE.
+toc: TRUE                       # Add a table of contents
+numbersections: TRUE             # Should sections (and thus figures and tables) be numbered?
+fontsize: 11pt                  # Set fontsize
+linestretch: 1.2                # Set distance between lines.
+link-citations: TRUE            # This creates dynamic links to the papers in reference list.
+
+### Adding additional latex packages:
+header-includes:
+   - \usepackage{colortbl} # Add additional packages here.
+   - \providecommand{\pandocbounded}[1]{#1}
+   - \usepackage{chngcntr}
+   - \counterwithout{figure}{section}
+   - \counterwithout{table}{section}
+
+output:
+  pdf_document:
+    keep_tex: TRUE
+    template: Tex/TexDefault.txt
+    fig_width: 3.5 # Adjust default figure sizes. This can also be done in the chunks of the text.
+    fig_height: 3.5
+abstract: |
+  Netflix is built on volume. Up to 2022 its catalogue holds nearly four thousand films from more than seventy countries, led by the United States and, strikingly, India. Each film tradition has a signature, with India leaning on drama and romance and running a full half hour longer than an American film, Japan reaching for action, and the United States and Britain heavy with documentaries. A reading of the descriptions confirms these signatures in the words each genre reaches for. The ratings tell a cautionary tale for a would-be rival, since the genres that draw the most viewers, thrillers and action, rate among the lowest, while documentaries earn the highest scores and the smallest audiences. Set against HBO, Netflix trades quality for breadth, its median film scoring a full half point lower across every genre. The lesson for an investor is that breadth fills a catalogue but curation earns the ratings.
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.align = "center", dev = "pdf", fig.pos = "H")
+
+rm(list = ls()); gc()
+
+if(!require(pacman)) install.packages("pacman")
+pacman::p_load(tidyverse, scales, ggrepel, knitr, kableExtra)
+
+# Source every function in the code folder:
+list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+```{r data, include = FALSE, cache = TRUE}
+titles <- load_streaming("data/netflix/titles.rds") # IMDb-sourced titles
+
+movies <- prep_movies(titles) # films up to 2022
+
+credits <- load_credits("data/netflix/credits.rds")  # cast and crew
+
+mvcsv <- load_movies_csv("data/netflix/netflix_movies.csv") # classic catalogue export
+
+hbo <- load_streaming("data/HBO_titles.rds") %>% 
+    filter(type == "MOVIE") # HBO films, for the comparison
+
+# The major producers and genres
+topc <- movies %>% 
+    unnest(country) %>% 
+    count(country, sort = TRUE) %>% 
+    slice_head(n = 8) %>% 
+    pull(country)
+
+topg <- movies %>% 
+    unnest(genre) %>% 
+    count(genre, sort = TRUE) %>% 
+    slice_head(n = 8) %>%
+    pull(genre)
+
+content_g <- 
+    c("drama","comedy","thriller","romance","action","documentation","crime") # content genres for the text read
+
+# Figures quoted in the text
+n_movie <- nrow(movies)
+
+n_show <- titles %>% 
+    filter(type == "SHOW", release_year <= 2022) %>% 
+    nrow()
+
+n_ctry <- movies %>% 
+    unnest(country) %>% 
+    distinct(country) %>% 
+    nrow()
+
+ind_rt <- movies %>%
+    unnest(country) %>% 
+    filter(country == "IN") %>% 
+    summarise(m = median(runtime, na.rm = TRUE)) %>% 
+    pull(m)
+
+us_rt <- movies %>% 
+    unnest(country) %>% 
+    filter(country == "US") %>% 
+    summarise(m = median(runtime, na.rm = TRUE)) %>% 
+    pull(m)
+
+gsc <- movies %>% 
+    unnest(genre) %>% 
+    group_by(genre) %>%
+           summarise(s = median(imdb_score, na.rm = TRUE),
+                     v = median(imdb_votes, na.rm = TRUE), 
+                     .groups = "drop")
+
+doc_s <- gsc$s[gsc$genre == "documentation"]
+
+thr_s <- gsc$s[gsc$genre == "thriller"]
+
+doc_v <- gsc$v[gsc$genre == "documentation"]
+
+thr_v <- gsc$v[gsc$genre == "thriller"]
+
+nf_med <- median(movies$imdb_score, na.rm = TRUE)
+
+hbo_med <- median(hbo$imdb_score, na.rm = TRUE)
+
+ta <- top_actors(credits, movies, 1)
+
+top_actor <- ta$name[1]
+
+top_actor_n <- ta$Films[1]
+
+words_tab <- distinctive_words(movies, content_g) %>% # textual analysis table
+    group_by(genre) %>% 
+    summarise(`Distinctive words` = str_c(word, collapse = ", "),
+              .groups = "drop")
+
+age_tab <- mvcsv %>% 
+    filter(type == "Movie") %>% 
+    count(rating, name = "Films") %>%
+    slice_max(Films, n = 6, with_ties = FALSE)
+```
+
+# What works in streaming, read off Netflix {-}
+
+Netflix is the natural place to learn what a streaming catalogue should look like,
+and its own slowing growth makes the question timely. Using the IMDb-sourced record
+of titles up to 2022, this brief reads the platform through the four lenses the team
+asked for, the countries the films come from, the genres they belong to, the words
+their descriptions use, and how they rate and how long they run. Where it helps, the
+HBO catalogue from the earlier question sits alongside as a benchmark. The catalogue
+runs to `r format(n_movie, big.mark=",")` films and `r format(n_show, big.mark=",")`
+shows drawn from `r n_ctry` countries, and Figure \ref{catfig} shows how recent and
+how movie-heavy it is.
+
+```{r catfig, fig.cap = "Titles by release decade, films and shows.\\label{catfig}", fig.height = 3.0, fig.width = 7}
+plot_catalogue(titles)
+```
+
+# Where the movies come from {-}
+
+The catalogue is American at its core but far from American alone. Figure
+\ref{ctryfig} ranks the production countries, and the United States leads by a wide
+margin, with India a clear and surprising second ahead of Britain and France. The
+presence of India this high is the first sign that Netflix is not one catalogue but
+several national ones stacked together.
+
+```{r ctryfig, fig.cap = "Top production countries among films up to 2022.\\label{ctryfig}", fig.height = 3.2, fig.width = 7}
+plot_countries(movies, 10)
+```
+
+Each of those traditions makes something different. Figure \ref{heatfig} reads the
+share of every major producer's films that carry each genre, and the national
+signatures are sharp. India leans heavily on drama and romance, the Bollywood
+template, while Japan is defined by action far more than any other country, and the
+United States and Britain carry the documentaries. For a rival planning its own
+slate, the map shows that genre strategy and sourcing country are the same decision.
+
+```{r heatfig, fig.cap = "Share of each country's films carrying each genre. Films can hold more than one genre.\\label{heatfig}", fig.height = 3.6, fig.width = 7}
+plot_genre_country(movies, topc, topg)
+```
+
+# What the descriptions say {-}
+
+The genres are not just labels, they are written in a distinct language. Table
+\ref{wordtab} reports, for each genre, the words most over-represented in its films'
+descriptions against the catalogue as a whole, with nothing hand-picked. Thrillers
+speak of suspects and killers and heists, romances of crushes and weddings, action
+of assassins and heroes, and documentaries of footage and interviews. The text read
+confirms the genre map and offers a would-be platform a ready vocabulary for sorting
+and recommending its own library.
+
+```{r wordtab}
+words_tab %>% rename(Genre = genre) %>%
+  kable(caption = "\\label{wordtab}Words most distinctive to each genre's descriptions, by lift against the full catalogue", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position", font_size = 9)
+```
+
+# Acclaim and popularity pull apart {-}
+
+The most useful finding for an investor is that the crowd and the critics want
+different things. Figure \ref{ratefig} places each genre by its median score against
+its median votes, and the two run in opposite directions. Thrillers and action draw
+the largest audiences yet sit near the bottom for rating, while documentaries earn
+the highest scores, near `r round(doc_s,1)`, on the smallest audiences. A thriller
+pulls a median `r format(round(thr_v), big.mark=",")` votes against a documentary's
+`r format(round(doc_v), big.mark=",")`, so a catalogue chasing both prestige and
+reach needs both kinds of title and should not expect one to deliver the other.
+
+```{r ratefig, fig.cap = "Median IMDb score against median votes, by genre.\\label{ratefig}", fig.height = 3.4, fig.width = 7}
+plot_ratings(movies, topg)
+```
+
+# How long the movies run {-}
+
+Length is another place where the national traditions diverge. Figure \ref{lenfig}
+shows the median runtime by country, and India stands apart at `r round(ind_rt)`
+minutes against an American median of `r round(us_rt)`, a difference of more than
+half an hour that reflects the song-and-interval format of Bollywood cinema. For a
+platform deciding how to fill a slate, runtime is not a neutral choice but a
+fingerprint of where a film was made.
+
+```{r lenfig, fig.cap = "Median film runtime by country.\\label{lenfig}", fig.height = 3.0, fig.width = 7}
+plot_length(movies, topc)
+```
+
+# Netflix set against HBO {-}
+
+A benchmark sharpens the picture, and HBO is the obvious one. Figure \ref{hbofig}
+compares the median score of each genre's films across the two platforms, and HBO
+sits higher in every single genre. The gap is not small, with the typical Netflix
+film scoring `r round(nf_med,1)` against HBO's `r round(hbo_med,1)`, a full half
+point on the median. Netflix has chosen breadth and HBO has chosen curation, and the
+ratings reward the curator. The clearest single lesson for the team is that a smaller,
+better-chosen catalogue rates higher than a larger one.
+
+```{r hbofig, fig.cap = "Median IMDb score per genre, Netflix against HBO films.\\label{hbofig}", fig.height = 3.2, fig.width = 7}
+plot_hbo(movies, hbo, content_g)
+```
+
+# Who and what fills the shelves {-}
+
+The people behind the films tell the same story as the map. Table \ref{actortab}
+lists the actors credited on the most Netflix films, and the list is dominated by
+Bollywood, led by `r top_actor` with `r top_actor_n` films, which is why India ranks
+so high. The catalogue also skews mature. Among the films in the classic export,
+the single most common age rating is TV-MA, so adult-oriented content, not family
+fare, is the platform's centre of gravity. A new entrant should know that the volume
+strategy leans on a few prolific national industries and on mature content to fill
+the long tail.
+
+```{r actortab}
+top_actors(credits, movies, 8) %>%
+  kable(caption = "\\label{actortab}Actors credited on the most Netflix films up to 2022", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+```{r agetab}
+age_tab %>% rename(`Age rating` = rating) %>%
+  kable(caption = "\\label{agetab}Most common age ratings among Netflix films (classic catalogue export)", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position")
+```
