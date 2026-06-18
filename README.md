@@ -37,6 +37,15 @@ is `Question1/Coffee_Hub_Recommendation.pptx`, and the charts inside it
 come from the functions sourced below. I reproduce them here from the
 same prepared data the deck uses.
 
+My approach is to let the supplied reviews drive every claim so that
+nothing is hand-picked. `load_coffee` reads and cleans the file,
+`region_from_origin` rolls scattered growing regions up to countries,
+and `derive_keywords` ranks review words by the rating lift they carry
+rather than by a list I chose, after which `score_keywords` tags each
+coffee on those words. The four plots then turn that one prepared table
+into the roast, region-value, flavour and supplier views the deck
+recommends from, so each slide traces back to a number in the data.
+
 ``` r
 list.files('Question1/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 
