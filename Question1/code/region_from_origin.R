@@ -4,13 +4,13 @@ region_from_origin <- function(df, lookup){
 
     blob <- str_c(df$origin_1, " ", df$origin_2)  # search both origin fields together
 
-    Region <-
-        blob %>%
+    Region <-  # map region classifications to a new vector
+        blob %>%  # pipe the combined strings
         map_chr(function(t){     # for each coffee's origin text
             hit <- lookup[map_lgl(names(lookup),       # which pattern matches
-                                  ~str_detect(t, regex(.x, ignore_case = TRUE)))]
+                                  ~str_detect(t, regex(.x, ignore_case = TRUE)))]  # test each text against regex list
             if(length(hit) == 0) "Other" else unname(hit[[1]])   # default to Other if none match
-        })
+        })  # finish mapping function
 
-    df %>% mutate(Region = Region)      # add the region label
+    df %>% mutate(Region = Region)  # add the region label
 }
