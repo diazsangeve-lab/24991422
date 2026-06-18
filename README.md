@@ -61,8 +61,10 @@ keywords <- derive_keywords(Coffee, n = 12) # indicator words, straight from the
 Coffee <- score_keywords(Coffee, keywords) # score each coffee on those words
 ```
 
-The first chart sets the roast strategy. Light and medium-light roasts
-rate highest, so they should anchor the range.
+This plot gives the average rating of every coffee grouped by roast
+level. It shows that the lighter roasts come out on top, with light and
+medium-light rating highest and the score sliding as the roast darkens,
+so the range should be anchored on lighter roasts.
 
 ``` r
 plot_roast(Coffee)
@@ -70,9 +72,10 @@ plot_roast(Coffee)
 
 <img src="README_files/figure-markdown_github/q1-roast-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-The second shows where the value sits. East African beans rate within a
-point of Panama at a fraction of the price, which is the core sourcing
-argument.
+This plot places each growing country by its average rating against its
+average price per 100g. It shows that East African origins like Kenya
+and Ethiopia rate within a point of Panama while costing a fraction as
+much, which is the core sourcing argument.
 
 ``` r
 plot_region_value(Coffee)
@@ -80,9 +83,10 @@ plot_region_value(Coffee)
 
 <img src="README_files/figure-markdown_github/q1-region-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-The flavour fingerprint uses the data-derived words, showing which ones
-are far more common among the very best coffees than across the shelf as
-a whole.
+This plot compares how often each data-derived flavour word appears in
+the very best coffees against the shelf as a whole. It shows that words
+like juicy and saturated are far more common among top-rated coffees, so
+those are the notes worth stocking towards.
 
 ``` r
 plot_flavour_fingerprint(Coffee, keywords)
@@ -90,8 +94,10 @@ plot_flavour_fingerprint(Coffee, keywords)
 
 <img src="README_files/figure-markdown_github/q1-flavour-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Finally the supplier leaderboard separates the value champions from the
-premium showpieces.
+This plot ranks suppliers by their average rating and separates the
+affordable from the premium. It shows that a few roasters deliver high
+quality at low cost while a different group sits at the top of the price
+range, so the shelf can carry both a value tier and a showpiece tier.
 
 ``` r
 plot_supplier_leaderboard(Coffee)
@@ -106,6 +112,17 @@ state record of births from 1910 to 2014. The functions collate the
 national counts, measure how long the top names persist, then test music
 and screen against the surges directly using the Billboard and HBO
 datasets.
+
+My approach splits the question into persistence and surges.
+`collate_names` and `national_totals` build the national series,
+`name_persistence` and `persistence_table` measure how firmly each
+year’s top names hold their rank over the following years, and
+`find_spikes` pulls the sharp year-on-year jumps straight from the data.
+To test cause rather than assert it, `billboard_name_spikes` and
+`hbo_name_spikes` match those jumps against the Billboard and HBO
+datasets, `combine_matches` and `tag_spike_source` label each surge by
+what drove it, and `plot_event_study` pools the matches to read the
+average naming response around an event.
 
 ``` r
 list.files('Question2/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
@@ -157,10 +174,10 @@ hbo_events <- hbo %>%
 ev_events  <- matches %>% transmute(Name, Event_Year, Source)
 ```
 
-Persistence first. Each year’s 25 most popular names are tracked one,
-two and three years on, and the rank correlation holds firmly through
-most of the century before loosening after 1990, more for boys than for
-girls.
+This plot tracks the rank correlation of each year’s 25 most popular
+names one, two and three years later, split by gender. It shows that the
+top names hold their position firmly through most of the century and
+then loosen after 1990, more sharply for boys than for girls.
 
 ``` r
 plot_persistence(pers)
@@ -185,9 +202,10 @@ ptab %>%
 
 Mean rank persistence by gender and horizon, before and from 1990
 
-The sharpest movements are spikes rather than drifts, and many sit on a
-clear cultural event, which the surge table labels by the cause the
-datasets can attribute.
+This table lists the ten sharpest year-on-year name surges with the
+cause our datasets can attribute to each. It shows that the biggest
+movements are sudden spikes rather than slow drifts, and that most of
+them line up with a song or a screen character.
 
 ``` r
 sourced %>%
@@ -212,9 +230,11 @@ sourced %>%
 The ten sharpest year-on-year name surges, with the cause our datasets
 can attribute
 
-The bubble chart sets these out by name and year, sized by babies at the
-peak and coloured by whether a singer or a screen character drove the
-name.
+This plot places each culturally driven name by the year it surged,
+sized by how many babies took it at the peak and coloured by whether a
+singer or a screen character drove it. It shows that the surges cluster
+in the music and television era and that both sources produce names
+reaching into the thousands.
 
 ``` r
 plot_spike_bubble(matches)
@@ -222,8 +242,9 @@ plot_spike_bubble(matches)
 
 <img src="README_files/figure-markdown_github/q2-bubble-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-A surge is not a lasting name. Plotting the sharpest surges over their
-full life shows most are fashions that fade within a decade.
+This plot follows the names with the sharpest surges across their whole
+life rather than at the peak alone. It shows that almost all of them are
+short-lived fashions that climb fast and fade within about a decade.
 
 ``` r
 plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The sharpest surges are usually short-lived fashions")
@@ -231,8 +252,10 @@ plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The shar
 
 <img src="README_files/figure-markdown_github/q2-fade-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Scaling the biggest names of the century to their own peak tells the
-same story one name at a time, with even the giants all but vanishing.
+This plot rescales the biggest names of the century to their own peak so
+the full arc is visible. It shows that even the largest names eventually
+fall to a fraction of their height, so size at the top is no guarantee
+of staying power.
 
 ``` r
 plot_name_distribution(tot, dist_names)
@@ -240,9 +263,10 @@ plot_name_distribution(tot, dist_names)
 
 <img src="README_files/figure-markdown_github/q2-dist-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Music tests cleanly. Reading the first name of every charting act and
-asking whether babies followed shows the chart all but creating names,
-with Sade and Rihanna running from almost nothing into the thousands.
+This table lists the singers whose first name surged in babies after
+they first reached the Billboard top ten. It shows the chart almost
+creating names, with Sade and Rihanna climbing from near nothing into
+the thousands.
 
 ``` r
 bb %>% 
@@ -265,6 +289,10 @@ bb %>%
 Singers whose first name surged in babies after they first reached the
 Billboard top ten
 
+Plotting those same names from 1975 with a marker on each singer’s first
+chart year makes the timing visible. It shows the babies arriving right
+after the music lands rather than before.
+
 ``` r
 plot_trajectories(tot, bb_events$Name, events = bb_events, from = 1975,
                   title = "Named after the charts", subtitle = "Babies named for chart-topping singers")
@@ -272,8 +300,10 @@ plot_trajectories(tot, bb_events$Name, events = bb_events, from = 1975,
 
 <img src="README_files/figure-markdown_github/q2-bbfig-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Screen does the same. Character names like Meadow after The Sopranos and
-Imani after Coming to America arrive within a year or two of the title.
+This table lists the screen characters whose first name surged in babies
+after the title appeared. It shows the same effect from television and
+film, with names like Meadow after The Sopranos and Imani after Coming
+to America arriving within a year or two of release.
 
 ``` r
 hbo %>% slice_max(Ratio, n = 8) %>%
@@ -295,6 +325,10 @@ hbo %>% slice_max(Ratio, n = 8) %>%
 Screen characters whose first name surged in babies after the title
 appeared
 
+Plotting the character names from 1980 with a marker on each title’s
+release does the same for screen. It shows the same short lag, with the
+names rising within a year or two of the title.
+
 ``` r
 plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
                   title = "Named after the screen", subtitle = "Babies named for popular screen characters")
@@ -302,8 +336,10 @@ plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
 
 <img src="README_files/figure-markdown_github/q2-hbofig-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Pooling every matched name on the year its trigger landed gives the
-average naming response, the event study that closes the question.
+This plot pools every matched name on the year its trigger landed and
+averages the response around it. It shows a clean event-study shape,
+with naming flat before the trigger and jumping in the years just after,
+which is the closing evidence that culture moves names.
 
 ``` r
 plot_event_study(tot, ev_events)
@@ -318,16 +354,26 @@ Default is defined as a loan charged off against one fully paid, and the
 analysis stays descriptive, reading default rates across the factors the
 Institute cares about. The data is large, so this chunk is cached.
 
+My approach starts with what default means, so I resolve each loan to
+charged off against fully paid and drop the unresolved cases, which
+`load_loans` and `prep_default` handle. From there the work stays
+descriptive rather than modelled, reading the default rate across the
+factors the Institute named, with `plot_grade`, `plot_dti` and
+`plot_states` covering the lender’s own grade, the debt-to-income lever
+and the geographic claim about Texas. The aim is to test the agency’s
+beliefs against the data rather than to build a classifier.
+
 ``` r
 list.files('Question3/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 
-loans <- load_loans("Question3/data/Loan_Cred/loan_data.rds") %>%   # the one-million-row extract
-    prep_default()                                                  # resolved loans with the default flag
+loans <- load_loans("Question3/data/Loan_Cred/loan_data.rds") %>% # the one-million-row extract
+    prep_default() # resolved loans with the default flag
 ```
 
-The grade the lender already assigns is the headline. Default climbs
-without a reversal from the A grade to the G grade, a gap that dwarfs
-every other factor.
+This plot gives the default rate for each loan grade the lender assigns,
+from A to G. It shows that default climbs without a single reversal from
+roughly seven percent at grade A to nearly sixty percent at grade G, a
+spread that dwarfs every other factor in the data.
 
 ``` r
 plot_grade(loans)
@@ -335,8 +381,10 @@ plot_grade(loans)
 
 <img src="README_files/figure-markdown_github/q3-grade-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Debt-to-income gives the Director a lever. Default rises smoothly with
-the ratio, so a cap is a tolerance choice rather than a natural break.
+This plot gives the default rate across bands of the debt-to-income
+ratio. It shows that default rises smoothly as the ratio grows rather
+than jumping at any threshold, so where to cap it is a tolerance choice
+rather than a natural break.
 
 ``` r
 plot_dti(loans)
@@ -344,8 +392,10 @@ plot_dti(loans)
 
 <img src="README_files/figure-markdown_github/q3-dti-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-States differ, but Texas sits squarely at the national average rather
-than apart from it.
+This plot sets each state’s default rate next to what its grade mix
+alone would predict. It shows that most of the gap between states is
+just grade composition, and that Texas sits almost exactly on the
+national average rather than apart from it.
 
 ``` r
 plot_states(loans)
@@ -359,6 +409,15 @@ A read on the Netflix catalogue for a team planning its own streaming
 service. The functions parse the genres and countries, then map where
 the films come from, what each country makes, how they rate and how long
 they run, with HBO as a benchmark.
+
+My approach parses the data before reading anything from it, so
+`load_streaming` pulls genre and country out of the raw text fields and
+`prep_movies` keeps films up to 2022. The plots then read the catalogue
+from a few angles, where titles come from, what each country specialises
+in, how acclaim and popularity diverge and how long films run, and
+`plot_hbo` sets all of it against HBO as a benchmark.
+`distinctive_words` cross-checks the genre map against the language of
+the descriptions so the picture does not rest on the genre tags alone.
 
 ``` r
 list.files('Question4/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
@@ -385,8 +444,9 @@ topg <- movies %>%
 content_g <- c("drama","comedy","thriller","romance","action","documentation","crime")
 ```
 
-The catalogue is American at its core but far from American alone, with
-India a clear second.
+This plot ranks the production countries by how many films each
+contributes to the catalogue. It shows that the library is American at
+its core but far from American alone, with India a clear second.
 
 ``` r
 plot_countries(movies, 10)
@@ -394,9 +454,10 @@ plot_countries(movies, 10)
 
 <img src="README_files/figure-markdown_github/q4-countries-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Each tradition makes something different, with India on drama and
-romance, Japan on action, and the United States and Britain on
-documentaries.
+This plot gives the share of each country’s films that falls in each
+major genre. It shows that every tradition specialises differently, with
+India leaning on drama and romance, Japan on action, and the United
+States and Britain on documentaries.
 
 ``` r
 plot_genre_country(movies, topc, topg)
@@ -404,9 +465,10 @@ plot_genre_country(movies, topc, topg)
 
 <img src="README_files/figure-markdown_github/q4-heat-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-The most useful finding for an investor is that acclaim and popularity
-pull apart, with documentaries scoring high on small audiences and
-thrillers doing the reverse.
+This plot places each genre by its typical critic score against its
+typical audience size. It shows that acclaim and popularity pull apart,
+with documentaries scoring high on small audiences and thrillers doing
+the reverse, which is the most useful signal for a new entrant.
 
 ``` r
 plot_ratings(movies, topg)
@@ -414,8 +476,9 @@ plot_ratings(movies, topg)
 
 <img src="README_files/figure-markdown_github/q4-ratings-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Length is a fingerprint too, with India running far longer than the
-American median.
+This plot compares the typical running time of films by production
+country. It shows that length is a national fingerprint too, with Indian
+films running far longer than the American median.
 
 ``` r
 plot_length(movies, topc)
@@ -423,8 +486,9 @@ plot_length(movies, topc)
 
 <img src="README_files/figure-markdown_github/q4-length-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-Set against HBO, Netflix trades quality for breadth, scoring lower in
-every genre.
+This plot sets the typical Netflix score against HBO within each genre.
+It shows that Netflix trades quality for breadth, rating below HBO in
+every genre rather than only on average.
 
 ``` r
 plot_hbo(movies, hbo, content_g)
@@ -432,8 +496,11 @@ plot_hbo(movies, hbo, content_g)
 
 <img src="README_files/figure-markdown_github/q4-hbo-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-The description text confirms the genre map, since each genre reaches
-for its own vocabulary.
+This table lists the words most distinctive to each genre’s
+descriptions, measured by how much more they appear there than
+elsewhere. It shows that each genre reaches for its own vocabulary,
+which confirms the genre map from the language up rather than from the
+tags alone.
 
 ``` r
 distinctive_words(movies, content_g) %>%
