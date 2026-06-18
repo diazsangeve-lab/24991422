@@ -78,6 +78,12 @@ a point of Panama while costing a fraction as much, and that gap is the
 core sourcing argument.
 
 ``` r
+plot_origin_map(Coffee)
+```
+
+<img src="README_files/figure-markdown_github/q1-world-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
+``` r
 plot_region_value(Coffee)
 ```
 
@@ -563,6 +569,15 @@ mvcsv   <- load_movies_csv("Question4/data/netflix/netflix_movies.csv")# classic
 age_tab <- mvcsv %>% filter(type == "Movie") %>% # six most common age ratings among films
     count(rating, name = "Films") %>% slice_max(Films, n = 6, with_ties = FALSE)
 ```
+
+This plot compares the contents of the Netflix catalogue, showing that
+films far outpace shows on the platform.
+
+``` r
+plot_catalogue(titles)
+```
+
+<img src="README_files/figure-markdown_github/q4-catalogue-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Ranking the production countries by how many films each puts into the
 catalogue maps its centre of gravity. The library is American at its

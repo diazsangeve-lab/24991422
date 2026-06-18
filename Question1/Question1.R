@@ -2,7 +2,7 @@
 # Sources the code/ functions, runs the analysis, and writes the .pptx with officer.
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, officer, flextable, stringi, ggrepel, scales)
+pacman::p_load(tidyverse, officer, flextable, stringi, ggrepel, scales, maps)
 
 list.files("code/", full.names = TRUE, recursive = TRUE) %>%
     .[grepl("\\.R$", .)] %>% as.list() %>% walk(~source(.))
@@ -73,6 +73,9 @@ fp <- tibble(word = keywords,
 
 g_roast    <-
     plot_roast(Coffee)   # rating by roast
+
+origin_map_gg <-
+    plot_origin_map(Coffee) # world map
 
 g_region   <-
     plot_region_value(Coffee)  # rating vs cost by region
@@ -178,21 +181,26 @@ doc <- slide_chart_text(doc, "Recommendation 1 \u00B7 Roast", "Prioritise Lighte
                             lead("Optimal inventory strategy. ", "The core range should be built from light and medium-light beans, with a small dark-roast selection kept for specific requests.")),
                         chart_left = 5.0)
 
-## Slide 4: Region
+## Slide 4-5: Region
+doc <- add_slide(doc, layout = blank, master = "Office Theme")
+doc <- ph_with(doc, kicker("Sourcing"), location = ph_location(left = 0.5, top = 0.30, width = 9, height = 0.3))
+doc <- ph_with(doc, head_t("Where the best beans are grown"), location = ph_location(left = 0.5, top = 0.55, width = 9, height = 0.7))
+doc <- ph_with(doc, origin_map_gg, location = ph_location(left = 0.5, top = 1.5, width = 9, height = 5.0))
+
 doc <- slide_chart_text(doc, "Recommendation 2 \u00B7 Sourcing Region", "Where the value lives", g_region,
                         list(
                             lead("East Africa is the sweet spot. ", sprintf("Kenya averages %.1f and Ethiopia %.1f, within a point of Panama's %.1f, yet they cost about %s per 100g against Panama's %s. Ethiopia also offers the widest choice, with %d coffees.", rg("Kenya","r"), rg("Ethiopia","r"), rg("Panama","r"), money(rg("Kenya","cost")), money(rg("Panama","cost")), as.integer(rg("Ethiopia","k")))),
                             lead("Lead with Kenya and Ethiopia. ", "Make them the backbone of the menu, with a small premium shelf of Panama and Hawaii as showpieces.")),
                         chart_left = 0.5)
 
-## Slide 5: Flavour
+## Slide 6: Flavour
 doc <- slide_chart_text(doc, "Recommendation 3 \u00B7 Flavour Profile", "What the best cups taste like", g_flavour,
                         list(
                             lead("The best cups share a profile. ", sprintf("Ranking review words by rating lift, the strongest markers are %s. Among coffees rating 95 and up, reviews are about %.1f times as likely to read %s and %.1f times as likely to read %s.", wlist(6), fp$top[1]/fp$all[1], fp$word[1], fp$top[2]/fp$all[2], fp$word[2])),
                             lead("Buy for these markers. ", sprintf("This juicy, tropical, floral-resinous signature is the washed East African profile. When choosing between lots, let words like %s break the tie.", wlist(3)))),
                         chart_left = 5.0)
 
-## Slide 6: Suppliers
+## Slide 7: Suppliers
 doc <- slide_chart_text(doc, "Recommendation 4 \u00B7 Preferred Suppliers", "Strategic Procurement Options", g_supplier,
                         list(
                             lead("Value champions. ", sprintf("%s (%.1f at %s), %s (%.1f at %s) and %s (%.1f at %s) pair high scores with low prices across deep ranges, so they can anchor the everyday menu.",
@@ -203,7 +211,7 @@ doc <- slide_chart_text(doc, "Recommendation 4 \u00B7 Preferred Suppliers", "Str
                                                                  prem_sup$roaster[1], prem_sup$r[1], prem_sup$roaster[2], prem_sup$r[2], prem_sup$roaster[3], prem_sup$r[3]))),
                         chart_left = 0.5)
 
-## Slide 7: starter range table
+## Slide 8: starter range table
 doc <- add_slide(doc, layout = blank, master = "Office Theme")
 doc <- ph_with(doc, kicker("Putting it together"), location = ph_location(0.5, 0.30, 9, 0.3))
 doc <- ph_with(doc, head_t("A starter range for the shop"), location = ph_location(0.5, 0.55, 9, 0.7))
@@ -214,7 +222,7 @@ doc <- ph_with(doc, range_ft, location = ph_location(0.5, 1.6, 9, 4))
 doc <- ph_with(doc, fpar(ftext("Ratings and prices are catalogue averages across the reviewed coffees", fp_text(italic = TRUE, color = MUT, font.size = 11, font.family = "Calibri"))),
                location = ph_location(0.5, 6.7, 9, 0.3))
 
-## Slide 8: the buying recipe
+## Slide 9: the buying recipe
 doc <- add_slide(doc, layout = blank, master = "Office Theme")
 doc <- ph_with(doc, kicker("The buying recipe"), location = ph_location(0.5, 0.40, 9, 0.3))
 doc <- ph_with(doc, head_t("Five moves to a shelf that pours above its price"), location = ph_location(0.5, 0.70, 9, 1.0))

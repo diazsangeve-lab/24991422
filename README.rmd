@@ -30,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
 
 rm(list = ls()); gc()    # clean the environment
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, lubridate, scales, ggrepel, knitr, kableExtra)
+pacman::p_load(tidyverse, lubridate, scales, ggrepel, knitr, kableExtra, maps)
 ```
 
 # Question 1, Coffee
@@ -61,6 +61,10 @@ plot_roast(Coffee)
 ```
 
 Each growing country sits here by its average rating against its average price per 100g. East African origins like Kenya and Ethiopia land within a point of Panama while costing a fraction as much, and that gap is the core sourcing argument.
+
+```{r q1-world}
+plot_origin_map(Coffee)
+```
 
 ```{r q1-region}
 plot_region_value(Coffee)
@@ -342,6 +346,12 @@ credits <- load_credits("Question4/data/netflix/credits.rds")# cast and crew, on
 mvcsv   <- load_movies_csv("Question4/data/netflix/netflix_movies.csv")# classic export, carries the age rating
 age_tab <- mvcsv %>% filter(type == "Movie") %>% # six most common age ratings among films
     count(rating, name = "Films") %>% slice_max(Films, n = 6, with_ties = FALSE)
+```
+
+This plot compares the contents of the Netflix catalogue, showing that films far outpace shows on the platform. 
+
+```{r q4-catalogue}
+plot_catalogue(titles)
 ```
 
 Ranking the production countries by how many films each puts into the catalogue maps its centre of gravity. The library is American at its core but far from American alone, with India a clear second.

@@ -7,8 +7,11 @@ plot_length <- function(movies, countries){
         group_by(country) %>%
         summarise(Runtime = median(runtime, na.rm = TRUE), .groups = "drop") %>% # typical film length
         ggplot(aes(reorder(country, Runtime), Runtime)) +
-        geom_col(fill = "red") + coord_flip() +
-        geom_text(aes(label = round(Runtime)), hjust = -0.2, size = 3) +
+        geom_point(aes(size = Runtime, colour = Runtime), alpha = 0.9) +
+        scale_colour_viridis_c(guide = "none") +
+        scale_size_continuous(range = c(4, 12), guide = "none") +
+        coord_flip() +
+        geom_text(aes(label = round(Runtime)), hjust = 0.5, vjust = 0.5, size = 3, colour = "floralwhite") +
         theme_minimal() +
         labs(x = NULL, y = "Median runtime (minutes)",
              title = "How long the movies run, by country",

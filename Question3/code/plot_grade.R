@@ -2,10 +2,12 @@
 # from A to G if the grade is doing its job of separating good risks from bad:
 plot_grade <- function(df){
 
-    default_rate(df, grade) %>%                                                        # default rate per grade
-        ggplot(aes(grade, Default)) +
-        geom_col(fill = "steelblue4") +                                                   # one bar per grade
-        geom_text(aes(label = sprintf("%.0f%%", Default)), vjust = -0.4, size = 3) +   # label each bar
+    default_rate(df, grade) %>% # default rate per grade
+        ggplot(aes(x = grade, y = Default)) +
+        geom_segment(aes(xend = grade, y = 0, yend = Default), color = "steelblue4", linewidth = 1) +
+        geom_point(color = "steelblue4", size = 3) +
+        geom_text(aes(label = sprintf("%.0f%%", Default)), vjust = -1.2, size = 3) +
+        scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
         theme_minimal() +
         labs(x = "Lending Club credit grade", y = "Default rate (%)",
              title = "Default rate climbs steeply down the grade scale",

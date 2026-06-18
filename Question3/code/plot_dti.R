@@ -9,8 +9,12 @@ plot_dti <- function(df){
                           labels = c("0-10","10-15","15-20","20-25","25-30","30-35","35-40","40+"))) %>%
         group_by(band) %>% # keep band order for the line
         summarise(Default = mean(default) * 100, .groups = "drop") %>%
-        ggplot(aes(band, Default, group = 1)) +
-        geom_line(colour = "steelblue4") + geom_point(colour = "steelblue4") + # the rising curve
+        ggplot(aes(x = band, y = Default, group = 1)) +
+        # Creative addition: Shaded area underneath the trend to emphasize rising risk
+        geom_area(fill = "steelblue4", alpha = 0.3) +
+        # Kept the line and points for exact reading
+        geom_line(colour = "steelblue4", linewidth = 1) +
+        geom_point(colour = "steelblue4", size = 2.5) +
         geom_hline(yintercept = c(20, 25), linetype = "dashed", colour = "grey60") + # tolerance reference lines
         theme_minimal() +
         labs(x = "Debt-to-income band", y = "Default rate (%)",

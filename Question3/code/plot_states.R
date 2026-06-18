@@ -5,9 +5,11 @@ plot_states <- function(df){
     default_rate(df, addr_state) %>%                                                   # default rate per state
         filter(Loans >= 500) %>%                                                       # only well-represented states
         mutate(is_tx = addr_state == "TX") %>%                                         # flag Texas
-        ggplot(aes(reorder(addr_state, Default), Default, fill = is_tx)) +
-        geom_col() + coord_flip() +                                                    # ranked horizontal bars
-        scale_fill_manual(values = c(`FALSE` = "grey", `TRUE` = "red"), guide = "none") +
+        ggplot(aes(x = reorder(addr_state, Default), y = Default, color = is_tx)) +
+        geom_segment(aes(xend = reorder(addr_state, Default), y = 0, yend = Default), linewidth = 0.8) +
+        geom_point(size = 2) +
+        coord_flip() +
+        scale_color_manual(values = c(`FALSE` = "grey", `TRUE` = "red"), guide = "none") +
         theme_minimal() +
         labs(x = NULL, y = "Default rate (%)",
              title = "State default rates, Texas in red",
@@ -15,5 +17,5 @@ plot_states <- function(df){
              caption = "Data source: Loans and Credit Dataset") +
         theme(axis.text.y = element_text(size = 5),
               plot.title = element_text(size = 11),
-              plot.subtitle = element_text(size = 9))                                    # 50 states, so small labels
+              plot.subtitle = element_text(size = 9))
 }

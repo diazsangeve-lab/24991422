@@ -34,18 +34,23 @@ plot_supplier_leaderboard <- function(df, min_coffees = 10, n_label = 5){  # def
                                as.character(roaster),  # set label to roaster name if matched
                                NA_character_))  # otherwise set label to NA
 
-    ggplot(plot_data, aes(Cost, Rating, size = n)) +  # setup main plot aesthetics
-        geom_point(colour = "#7B4B2A", alpha = 0.8) + # espresso bubbles
-        ggrepel::geom_text_repel(aes(label = label),  # add non-overlapping labels
-                                 size = 2.6,  # set label text size
-                                 na.rm = TRUE,  # ignore missing labels
-                                 max.overlaps = 15) +  # maximum allowed overlaps
-        scale_size(range = c(3, 11), guide = "none") +  # adjust bubble sizing and remove legend
-        theme_minimal() +  # apply minimal charting theme
-        labs(x = "Average cost per 100g (USD)", y = "Average rating",  # configure axis titles
-             title = "Suppliers",  # set plot title
-             subtitle = "Supply companies worth stocking, by quality and price.",  # set plot subtitle
-             caption = "Data source: Coffee Dataset") +  # set plot caption
-        theme(plot.title = element_text(size = 14),  # format the title size
-              plot.subtitle = element_text(size = 11))  # format the subtitle size
+    ggplot(plot_data, aes(x = Cost, y = Rating)) +
+        # Creative addition: Topographical contour lines to map the densest market areas
+        geom_density_2d(colour = "grey85", linewidth = 0.6) +
+        # Refined bubbles with a white border for crisp separation
+        geom_point(aes(size = n), fill = "#7B4B2A", colour = "white", shape = 21, alpha = 0.85) +
+        ggrepel::geom_text_repel(aes(label = label),
+                                 size = 2.6,
+                                 na.rm = TRUE,
+                                 max.overlaps = 15,
+                                 box.padding = 0.5,
+                                 segment.color = "grey60") +
+        scale_size(range = c(3, 11), guide = "none") +
+        theme_minimal() +
+        labs(x = "Average cost per 100g (USD)", y = "Average rating",
+             title = "Suppliers",
+             subtitle = "Supply companies worth stocking, by quality and price.",
+             caption = "Data source: Coffee Dataset") +
+        theme(plot.title = element_text(size = 14),
+              plot.subtitle = element_text(size = 11))
 }
