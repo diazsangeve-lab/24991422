@@ -7,28 +7,70 @@ pacman::p_load(tidyverse, officer, flextable, stringi, ggrepel, scales)
 list.files("code/", full.names = TRUE, recursive = TRUE) %>%
     .[grepl("\\.R$", .)] %>% as.list() %>% walk(~source(.))
 
+# Palette
+ESP <- "#2E1D14"; BROWN <- "#7B4B2A"; ACC <- "#C75B39"; INK <- "#3A2A1E"; MUT <- "#8A7560"
+
 # ---- Data and analysis ------------------------------------------------------
 
 Coffee <- load_coffee("data/Coffee/Coffee.csv")    # load, fixing strange characters
 
-student_words <-
-    c("sweet","chocolate","aroma","structure","finish","mouthfeel","toned","savory",  # student
-      "syrupy","tart","rich","juicy","acidity","zest","bright","crisp","balanced","cocoa",  # survey
-      "velvety","delicate","floral","smooth","silky","honey","citrus","fruit","spice",   # flavour
-      "resonant","plush","deep","fresh","almond","berry","vanilla","nutty","caramel")   # words
+Coffee <- load_coffee("data/Coffee/Coffee.csv") %>%   # load, fixing strange characters
+    filter(Cost_Per_100g > 0) %>%                     # drop the odd zero-cost rows
+    mutate(desc_all = replace_na(desc_all, ""))       # a couple of reviews are missing, treat as empty text
 
 region_lookup <-
-    c("Ethiopia"="Ethiopia","Kenya"="Kenya","Colombia"="Colombia","Panama"="Panama",  # origin
+    c("Ethiopia"="Ethiopia","Kenya"="Kenya","Colombia"="Colombia","Panama"="Panama",
       "Hawai"="Hawaii","Guatemala"="Guatemala","Sumatra|Lintong|Sulawesi|Indonesia"="Indonesia",
       "Costa Rica"="Costa Rica","Brazil"="Brazil","Honduras"="Honduras","Rwanda"="Rwanda")
 
-Coffee <-
-    Coffee %>%
-    score_keywords(student_words) %>%   # add the student match score
-    region_from_origin(region_lookup) %>%   # tag each coffee's region
-    filter(Cost_Per_100g > 0)     # drop the odd zero-cost rows
+Coffee <- region_from_origin(Coffee, region_lookup) # tag each coffee's origin region
+
+# ---- Derive the indicator words from the reviews (nothing hand-picked) -------
+
+keywords <- derive_keywords(Coffee, n = 12) # top words by rating lift
+n_words  <- length(keywords)
+
+# Honest validation: derive the words on one half, score and correlate on the
+# other, so the rating link is not a circular artefact of the same data.
+set.seed(42)
+hold        <- sample(c(TRUE, FALSE), nrow(Coffee), replace = TRUE)
+kw_train    <- derive_keywords(Coffee[!hold, ], n = 12)
+test_scored <- score_keywords(Coffee[hold, ], kw_train)
+cor_hold    <- round(cor(test_scored$Student_Score, test_scored$Rating, use = "complete.obs"), 2)
+
+Coffee <- score_keywords(Coffee, keywords) # final indicator score on all coffees
+
+# ---- Compute every figure the slides quote ----------------------------------
+
+n_coffees <- nrow(Coffee)
+rat_lo    <- as.integer(min(Coffee$Rating)); rat_hi <- as.integer(max(Coffee$Rating))
+
+roast_tab <- Coffee %>% group_by(roast) %>% summarise(r = mean(Rating), .groups = "drop")
+light_r   <- roast_tab$r[roast_tab$roast == "Light"]
+medl_r    <- roast_tab$r[roast_tab$roast == "Medium-Light"]
+
+region_tab <- Coffee %>% filter(Region != "Other") %>%
+    group_by(Region) %>% summarise(r = mean(Rating), cost = mean(Cost_Per_100g), k = n(), .groups = "drop") %>%
+    filter(k >= 20)
+rg  <- function(R, col) region_tab[[col]][region_tab$Region == R]   # pull one region's value
+
+sup <- Coffee %>% group_by(roaster) %>%
+    summarise(r = mean(Rating), cost = mean(Cost_Per_100g), k = n(), .groups = "drop") %>%
+    filter(k >= 20, r >= 93)
+value_sup <- sup %>% arrange(cost) %>% slice_head(n = 3)            # cheapest high-raters
+prem_sup  <- sup %>% filter(!roaster %in% value_sup$roaster) %>%    # top-rated, excluding the value names
+    arrange(desc(r)) %>% slice_head(n = 3)
+
+
+# Flavour fingerprint shares, for the two most distinguishing markers:
+fp <- tibble(word = keywords,
+             top = map_dbl(keywords, ~mean(str_detect(str_to_lower(Coffee$desc_all[Coffee$Rating >= 95]), .x))),
+             all = map_dbl(keywords, ~mean(str_detect(str_to_lower(Coffee$desc_all), .x)))) %>%
+    mutate(gap = top - all) %>% arrange(desc(gap))
+
 
 # The four figures (the plot functions return ggplots):
+
 g_roast    <-
     plot_roast(Coffee)   # rating by roast
 
@@ -36,19 +78,22 @@ g_region   <-
     plot_region_value(Coffee)  # rating vs cost by region
 
 g_flavour  <-
-    plot_flavour_fingerprint(Coffee,  # what the best cups taste like
-                c("juicy","syrupy","floral","bright","balanced","rich","fruit","chocolate","crisp","cocoa"))
+    plot_flavour_fingerprint(Coffee, keywords) # fed the derived words
 
 g_supplier <-
     plot_supplier_leaderboard(Coffee)   # suppliers by quality and price
 
-# The starter-range table shown on the shortlist slide:
+# ---- Text helpers -----------------------------------------------------------
+
+wlist <- function(k) str_c(head(keywords, k), collapse = ", ")     # the derived words, as text
+money <- function(x) sprintf("$%.2f", x)
+
 starter <- tribble(
-    ~Shelf,            ~`Origin & roast`,         ~`Why it earns its place`,                      ~`Buy from`,
-    "Everyday hero",   "Kenya, light",            "93.8 rating at about $7, juicy and bright",     "Kakalove, JBC",
-    "Deep bench",      "Ethiopia, medium-light",  "93.1 rating, floral, the widest choice",        "JBC, Red Rooster",
-    "Value surprise",  "Indonesia, medium-light", "93.0 rating at the lowest cost, $5.30",         "Kakalove, Red Rooster",
-    "Premium pour",    "Panama or Hawaii, light", "94+ showpiece for the feature menu",            "Hula Daddy, Dragonfly")
+    ~Shelf,            ~`Origin & roast`,         ~`Why it earns its place`,                                              ~`Buy from`,
+    "Everyday hero",   "Kenya, light",            sprintf("%.1f rating at about %s, juicy and bright", rg("Kenya","r"), money(rg("Kenya","cost"))),     "Kakalove, JBC",
+    "Deep bench",      "Ethiopia, medium-light",  sprintf("%.1f rating, the widest choice (%d coffees)", rg("Ethiopia","r"), as.integer(rg("Ethiopia","k"))),       "JBC, Red Rooster",
+    "Value surprise",  "Indonesia, medium-light", sprintf("%.1f rating at the lowest cost, %s", rg("Indonesia","r"), money(rg("Indonesia","cost"))),    "Kakalove, Red Rooster",
+    "Premium pour",    "Panama, light",           sprintf("%.1f showpiece at %s for the feature menu", rg("Panama","r"), money(rg("Panama","cost"))),    "Hula Daddy, Dragonfly")
 
 # ---- Styling helpers --------------------------------------------------------
 
@@ -107,76 +152,56 @@ doc <-
             location = ph_location(0.5, 6.7, 9, 0.4))
 
 ## Slide 2: Approach
-doc <-
-    add_slide(doc,
-              layout = blank,
-              master = "Office Theme")
+doc <- add_slide(doc, layout = blank, master = "Office Theme")
+doc <- ph_with(doc, kicker("Methodological Approach"), location = ph_location(0.5, 0.30, 9, 0.3))
+doc <- ph_with(doc, head_t("Data Aggregation and Evaluation Strategy"), location = ph_location(0.5, 0.55, 9, 0.7))
 
-doc <-
-    ph_with(doc,
-            kicker("Methodological Approach"),
-            location = ph_location(0.5, 0.30, 9, 0.3))
+stat_hdr <- c(format(n_coffees, big.mark = ","), "3", sprintf("%d-%d", rat_lo, rat_hi), as.character(n_words))
+stat_df  <- as_tibble(setNames(list("Coffees Reviewed", "Expert Reviews Per Coffee",
+                                    "Rating Range", "Indicator Words Derived"), stat_hdr))
+stat_ft <- flextable(stat_df) %>%
+    style_ft() %>% align(part="all", align="center") %>%
+    fontsize(part="header", size=22) %>% color(part="header", color=ACC) %>%
+    bg(part="header", bg="white") %>% bg(part="body", bg="antiquewhite3") %>% width(width = 2.25)
+doc <- ph_with(doc, stat_ft, location = ph_location(0.5, 1.5, 9, 1.2))
 
-doc <-
-    ph_with(doc, head_t("Data Aggregation and Evaluation Strategy"),
-            location = ph_location(0.5, 0.55, 9, 0.7))
+doc <- ph_with(doc, block_list(
+    lead("Data Attributes. ", "The dataset records the roaster, bean origin, roast strength, cost per 100g, an expert rating and three tasting reviews for each coffee."),
+    lead("Indicator Words. ", sprintf("The entrepreneur mentioned a student survey of favourite-coffee words but did not supply the list, so we derive the indicators from the reviews. Every review word is ranked by how much its presence lifts the expert rating, and the top %d are kept.", n_words)),
+    lead("Validation. ", sprintf("Deriving those words on one half of the coffees and scoring the other half, the count of indicator words tracks the expert rating at a held-out correlation of %.2f, so the signal is real and not a circular artefact.", cor_hold))),
+    location = ph_location(0.5, 3.1, 9, 3.8))
 
-stat_ft <-
-    flextable(tibble(`2,095`="Coffees Reviewed",
-                     `3`="Expert Reviews Per Coffee",
-                     `84-98`="Rating Range",
-                     `36`="Student Flavour Keywords")) %>%
-    style_ft() %>%
-    align(part="all", align="center") %>%
-    fontsize(part="header", size=22) %>%
-    color(part="header", color=ACC) %>%
-    bg(part="header", bg="white") %>%
-    bg(part="body", bg="antiquewhite3") %>%
-    width(width = 2.25)
-
-doc <-
-    ph_with(doc,
-            stat_ft,
-            location = ph_location(0.5, 1.5, 9, 1.2))
-
-doc <-
-    ph_with(doc, block_list(
-        lead("Data Attributes. ", "The dataset contains information on the roaster, bean origin, roast strength, cost per unit, expert ratings, and comprehensive tasting reviews for each coffee."),
-        lead("Evaluation Metric. ", "We score each coffee on how many of the student survey words appear in its reviews. That score tracks the expert rating at a correlation of 0.40, so the local vocabulary is a real signal, not noise."),
-        lead("Research Objectives. ", "The analysis identifies the optimal roast levels, regions, flavour profiles, and suppliers to maximise value and quality for the proposed coffee shop.")),
-        location = ph_location(0.5, 3.1, 9, 3.8))
-
-## Slide 3
-doc <-
-    slide_chart_text(doc, "Recommendation 1 \u00B7 Roast", "Prioritise Lighter Roasts", g_roast,
+## Slide 3: Roast
+doc <- slide_chart_text(doc, "Recommendation 1 \u00B7 Roast", "Prioritise Lighter Roasts", g_roast,
                         list(
-                            lead("Lighter roasts win. ", "Light and medium-light coffees attain average scores of 93.5 and 93.2 respectively. These scores surpass those of medium and dark variants. Light roasting preserves the origin characteristics that expert reviews consistently reward."),
-                            lead("Optimal inventory strategy. ", "The core product range should focus on light and medium-light beans. A minimal selection of dark-roast options can be retained to satisfy specific consumer requests, variety always wins.")),
-    chart_left = 5.0)
+                            lead("Lighter roasts win. ", sprintf("Light and medium-light coffees average %.1f and %.1f, ahead of medium and dark. Light roasting preserves the origin character that the expert reviews consistently reward.", light_r, medl_r)),
+                            lead("Optimal inventory strategy. ", "The core range should be built from light and medium-light beans, with a small dark-roast selection kept for specific requests.")),
+                        chart_left = 5.0)
 
-## Slide 4
-doc <-
-    slide_chart_text(doc, "Recommendation 2 \u00B7 Sourcing Region", "Where the value lives", g_region,
+## Slide 4: Region
+doc <- slide_chart_text(doc, "Recommendation 2 \u00B7 Sourcing Region", "Where the value lives", g_region,
                         list(
-                            lead("East Africa provides the highest marginal benefit. ", "Kenya averages 93.8 and Ethiopia 93.1, within a point of Panama's 94.3, yet they cost about $7 per 100g against Panama's $31. Ethiopia also offers the widest choice, with 355 coffees in the catalogue."),
-                            lead("Strategic sourcing allocation. ", "Kenya and Ethiopia should form the primary supply base. Premium options from Panama and Hawaii can be stocked in limited quantities as exclusive offerings.")),
-    chart_left = 0.5)
+                            lead("East Africa is the sweet spot. ", sprintf("Kenya averages %.1f and Ethiopia %.1f, within a point of Panama's %.1f, yet they cost about %s per 100g against Panama's %s. Ethiopia also offers the widest choice, with %d coffees.", rg("Kenya","r"), rg("Ethiopia","r"), rg("Panama","r"), money(rg("Kenya","cost")), money(rg("Panama","cost")), as.integer(rg("Ethiopia","k")))),
+                            lead("Lead with Kenya and Ethiopia. ", "Make them the backbone of the menu, with a small premium shelf of Panama and Hawaii as showpieces.")),
+                        chart_left = 0.5)
 
-## Slide 5
-doc <-
-    slide_chart_text(doc, "Recommendation 3 \u00B7 Flavour Profile", "Defining High-Quality Characteristics", g_flavour,
-                     list(
-                         lead("The best cups share a profile. ", "Among coffees rating 95 and up, reviews are twice as likely to read juicy and far more likely to read syrupy, floral and bright. Crisp and plain chocolate mark the everyday cup."),
-                         lead("Buy for the words students use. ", "That juicy, syrupy, floral signature is the washed East African profile. When choosing between lots, let these notes break the tie.")),
-    chart_left = 5.0)
+## Slide 5: Flavour
+doc <- slide_chart_text(doc, "Recommendation 3 \u00B7 Flavour Profile", "What the best cups taste like", g_flavour,
+                        list(
+                            lead("The best cups share a profile. ", sprintf("Ranking review words by rating lift, the strongest markers are %s. Among coffees rating 95 and up, reviews are about %.1f times as likely to read %s and %.1f times as likely to read %s.", wlist(6), fp$top[1]/fp$all[1], fp$word[1], fp$top[2]/fp$all[2], fp$word[2])),
+                            lead("Buy for these markers. ", sprintf("This juicy, tropical, floral-resinous signature is the washed East African profile. When choosing between lots, let words like %s break the tie.", wlist(3)))),
+                        chart_left = 5.0)
 
-## Slide 6
-doc <-
-    slide_chart_text(doc, "Recommendation 4 \u00B7 Preferred Suppliers", "Strategic Procurement Options", g_supplier,
-                     list(
-                         lead("Value champions. ", "Kakalove Cafe (94.2 at $6.50), JBC Coffee Roasters (93.6 at $6.40) and Red Rooster (94.0 at $5.70) carry deep, high-scoring ranges at low prices."),
-                         lead("Premium showpieces. ", "Hula Daddy Kona (95.1, top-rated), Dragonfly (94.2, richest profile) and Bird Rock (94.2) for the feature shelf.")),
-    chart_left = 0.5)
+## Slide 6: Suppliers
+doc <- slide_chart_text(doc, "Recommendation 4 \u00B7 Preferred Suppliers", "Strategic Procurement Options", g_supplier,
+                        list(
+                            lead("Value champions. ", sprintf("%s (%.1f at %s), %s (%.1f at %s) and %s (%.1f at %s) pair high scores with low prices across deep ranges, so they can anchor the everyday menu.",
+                                                              value_sup$roaster[1], value_sup$r[1], money(value_sup$cost[1]),
+                                                              value_sup$roaster[2], value_sup$r[2], money(value_sup$cost[2]),
+                                                              value_sup$roaster[3], value_sup$r[3], money(value_sup$cost[3]))),
+                            lead("Premium showpieces. ", sprintf("%s (%.1f, top-rated), %s (%.1f) and %s (%.1f) bring the standout cups for the feature shelf.",
+                                                                 prem_sup$roaster[1], prem_sup$r[1], prem_sup$roaster[2], prem_sup$r[2], prem_sup$roaster[3], prem_sup$r[3]))),
+                        chart_left = 0.5)
 
 ## Slide 7: starter range table
 doc <- add_slide(doc, layout = blank, master = "Office Theme")
@@ -194,11 +219,12 @@ doc <- add_slide(doc, layout = blank, master = "Office Theme")
 doc <- ph_with(doc, kicker("The buying recipe"), location = ph_location(0.5, 0.40, 9, 0.3))
 doc <- ph_with(doc, head_t("Five moves to a shelf that pours above its price"), location = ph_location(0.5, 0.70, 9, 1.0))
 recipe <- list(
-    lead("1.  Roast.  ", "Build the core range light and medium-light. They rate highest and keep the origin character.", 16),
-    lead("2.  Region.  ", "Lead with Kenya and Ethiopia for 93+ cups at about a fifth of premium prices.", 16),
-    lead("3.  Flavour.  ", "Choose lots that read juicy, syrupy, floral and bright, the mark of the very best.", 16),
-    lead("4.  Suppliers.  ", "Anchor on Kakalove, JBC and Red Rooster for value, with Hula Daddy and Dragonfly as showpieces.", 16),
-    lead("5.  Price.  ", "Most quality sits near $6 to $7 per 100g, so a strong everyday menu need not be expensive.", 16))
+    lead("1.  Roast.  ", "Build the core range from light and medium-light beans, which rate highest and keep the origin character.", 16),
+    lead("2.  Region.  ", "Lead with Kenya and Ethiopia, 93-plus cups at about a fifth of premium prices.", 16),
+    lead("3.  Flavour.  ", sprintf("Favour lots that read %s, the markers the data ties to the very best.", wlist(4)), 16),
+    lead("4.  Suppliers.  ", sprintf("Anchor on %s, %s and %s for value, with %s and %s as showpieces.",
+                                     value_sup$roaster[1], value_sup$roaster[2], value_sup$roaster[3], prem_sup$roaster[1], prem_sup$roaster[2]), 16),
+    lead("5.  Price.  ", "Most of the quality sits near $6 to $7 per 100g, so a strong everyday menu need not be expensive.", 16))
 doc <- ph_with(doc, do.call(block_list, recipe), location = ph_location(0.5, 2.1, 9, 4.8))
 
-print(doc, target = "Coffee_Hub_Recommendation.pptx")                 # write the deck
+print(doc, target = "Coffee_Hub_Recommendation.pptx")

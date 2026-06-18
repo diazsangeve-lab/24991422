@@ -1,5 +1,5 @@
 # The suppliers worth stocking: mean rating against mean cost, for roasters with a
-# real range on offer. Labelled so we can pick value champions and premium names:
+# real range on offer. Labelled so I can pick value champions and premium names:
 plot_supplier_leaderboard <- function(df, min_coffees = 10, n_label = 5){
     plot_data <-
         df %>%
@@ -35,7 +35,7 @@ plot_supplier_leaderboard <- function(df, min_coffees = 10, n_label = 5){
                                NA_character_))
 
     ggplot(plot_data, aes(Cost, Rating, size = n)) +
-        geom_point(colour = "#7B4B2A", alpha = 0.8) +                  # espresso bubbles
+        geom_point(colour = "#7B4B2A", alpha = 0.8) + # espresso bubbles
         ggrepel::geom_text_repel(aes(label = label),
                                  size = 2.6,
                                  na.rm = TRUE,

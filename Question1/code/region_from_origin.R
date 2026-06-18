@@ -2,7 +2,7 @@
 # 'lookup' is a named vector of regex pattern = "Region label":
 region_from_origin <- function(df, lookup){
 
-    blob <- str_c(df$origin_1, " ", df$origin_2)   # search both origin fields together
+    blob <- str_c(df$origin_1, " ", df$origin_2)  # search both origin fields together
 
     Region <-
         blob %>%
