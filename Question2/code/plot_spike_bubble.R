@@ -8,11 +8,15 @@ plot_spike_bubble <- function(matches, n = 22){
         mutate(Name = fct_reorder(Name, Peak_Year)) %>% # left to right in time
         ggplot(aes(Name, Peak_Year, size = Post, colour = Source)) +
         geom_point(alpha = 0.85) +  # one bubble per name
+        geom_text(aes(label = Post), size = 2.4, vjust = -1.6, show.legend = FALSE, colour = "black") +  # the count
         scale_size(range = c(3, 16), guide = "none") +
         scale_colour_manual(values = c(Screen = "red3", Music = "darkorchid2")) +
         theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
         labs(x = "", y = "Year of peak", colour = "",
              title = "Singers and characters who named a generation",
-             subtitle = "Names that surged after a hit or a premiere, sized by babies at peak")
+             subtitle = "Names that surged after a hit or a premiere, sized by babies at peak",
+             caption = "Data source: US Baby Names Dataset") +
+        theme(plot.title = element_text(size = 11),
+              plot.subtitle = element_text(size = 9))
 }

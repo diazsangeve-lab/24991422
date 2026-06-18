@@ -11,5 +11,12 @@ plot_trajectories <- function(tot, names, events = NULL, from = 1940, title = ""
         geom_line(linewidth = 0.8) + # each name's path
         scale_colour_brewer(palette = "Set2") +
         theme_minimal() +
-        labs(x = "", y = "Babies named", colour = "", title = title, subtitle = subtitle)
+        labs(x = "",
+             y = "Babies named",
+             colour = "",
+             title = title,
+             subtitle = subtitle,
+             caption = "Data source: US Baby Names Dataset") +
+        theme(plot.title = element_text(size = 11),
+              plot.subtitle = element_text(size = 9))
 }

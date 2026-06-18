@@ -13,5 +13,8 @@ plot_persistence <- function(pers){
         theme_minimal() +
         labs(x = "", y = "Rank persistence (Spearman)", colour = "",
              title = "Do popular names persist?",
-             subtitle = "Each year's top 25 names against the next three years, averaged")
+             subtitle = "Each year's top 25 names against the next three years, averaged",
+             caption = "Data source: US Baby Names Dataset") +
+        theme(plot.title = element_text(size = 11),
+              plot.subtitle = element_text(size = 9))
 }

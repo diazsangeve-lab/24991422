@@ -18,5 +18,8 @@ plot_name_distribution <- function(tot, names, from = 1940){
               panel.grid.minor = element_blank()) +
         labs(x = "", y = "",
              title = "The life of a name",
-             subtitle = "Each name scaled to its own peak, showing how fast it rose and fell")
+             subtitle = "Each name scaled to its own peak, showing how fast it rose and fell",
+             caption = "Data source: US Baby Names Dataset") +
+    theme(plot.title = element_text(size = 11),
+          plot.subtitle = element_text(size = 9))
 }

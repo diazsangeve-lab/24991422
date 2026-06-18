@@ -165,7 +165,10 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 
 %%% Include extra packages specified by user
-\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{chngcntr}
+\counterwithout{figure}{section}
+\counterwithout{table}{section}\usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{multirow}
@@ -323,13 +326,13 @@ held, a lower value means the names moved or fell away.
 \toprule
 Gender & Horizon & Pre-1990 & 1990 onward & Change\\
 \midrule
-Boys & 1-year & 0.950 & 0.981 & -0.031\\
-Boys & 2-year & 0.891 & 0.958 & -0.067\\
-Boys & 3-year & 0.836 & 0.934 & -0.098\\
-Girls & 1-year & 0.937 & 0.952 & -0.014\\
-Girls & 2-year & 0.868 & 0.900 & -0.032\\
+Boys & 1-year & 0.981 & 0.950 & -0.031\\
+Boys & 2-year & 0.958 & 0.891 & -0.067\\
+Boys & 3-year & 0.934 & 0.836 & -0.098\\
+Girls & 1-year & 0.952 & 0.937 & -0.014\\
+Girls & 2-year & 0.900 & 0.868 & -0.032\\
 \addlinespace
-Girls & 3-year & 0.815 & 0.853 & -0.038\\
+Girls & 3-year & 0.853 & 0.815 & -0.038\\
 \bottomrule
 \end{longtable}
 \endgroup{}
@@ -424,8 +427,9 @@ decade.
   unexplained, waiting for the deeper look that follows.
 \end{itemize}
 
-A complementary view scales each standout name to its own peak, so the
-shape and timing of each wave can be compared directly.
+A complementary view turns to the biggest names of the past century and
+scales each to its own peak, so the shape of each rise and fall can be
+read directly.
 
 \begin{figure}[H]
 
@@ -435,6 +439,18 @@ shape and timing of each wave can be compared directly.
 
 \caption{The life of several culture-driven names, each scaled to its own peak.}\label{fig:fig-dist}
 \end{figure}
+
+\begin{itemize}
+\tightlist
+\item
+  Even the giants are temporary. Linda and Lisa tower over their decades
+  and then all but vanish, each now a fraction of a percent of its own
+  peak.
+\item
+  This is the persistence finding seen one name at a time. No name holds
+  the top for long, the same impermanence the Spearman series measured
+  in aggregate.
+\end{itemize}
 
 \section*{The sound and the screen}\label{the-sound-and-the-screen}
 \addcontentsline{toc}{section}{The sound and the screen}
@@ -479,14 +495,16 @@ Mya & Mya \& Sisqo & 1998 & 101 & 2271 & 22.3\\
 \begin{itemize}
 \tightlist
 \item
-  The Whitney effect is real and it generalises. Whitney rises with
-  Houston in the mid 1980s, and the same pattern repeats for Sade,
-  Aaliyah, Mya and Rihanna, each climbing in the years after the singer
-  broke through.
+  The chart all but creates names. Sade and Rihanna barely existed
+  before their first hit and then ran into the thousands, with Aaliyah
+  close behind, while Zhane and Carly show the same shape on a smaller
+  scale.
 \item
-  The clearest cases are names the chart all but created. Sade and
-  Rihanna barely existed before their first hit and then ran into the
-  thousands.
+  The brief's Whitney example is the same mechanism in a milder form.
+  Whitney was already a known name, 1,547 births in 1982, and Houston
+  lifted it more than sixfold to 9,719 by 1986. Because it was already
+  common it sits just outside a table built to surface names the charts
+  created from almost nothing.
 \end{itemize}
 
 \subsection*{Named after the screen}\label{named-after-the-screen}
@@ -506,8 +524,8 @@ Zander & Starship Troopers & 1997 & 7.0 & 236 & 236.0\\
 Lyric & Jason's Lyric & 1994 & 6.6 & 385 & 64.2\\
 \addlinespace
 Justice & The Pelican Brief & 1993 & 6.6 & 1634 & 29.5\\
-Jeremy & Chitty Chitty Bang Bang & 1968 & 6.8 & 7495 & 28.9\\
 Imani & Coming to America & 1988 & 6.8 & 394 & 28.1\\
+Gage & Tales from the Darkside: The Movie & 1990 & 6.1 & 1272 & 25.6\\
 \bottomrule
 \end{longtable}
 \endgroup{}
@@ -524,12 +542,18 @@ Imani & Coming to America & 1988 & 6.8 & 394 & 28.1\\
 \begin{itemize}
 \tightlist
 \item
-  Characters travel from the screen into the register. Dawson climbs
-  after Dawson's Creek, Meadow after The Sopranos, and Whitley after A
-  Different World, each within a year or two of the premiere.
+  Characters travel from the screen into the register. Meadow rises
+  after The Sopranos, Whitley after A Different World, and Imani after
+  Coming to America, each within a year or two of the title appearing.
 \item
   The supervisor's Katina is the same mechanism a generation earlier, a
   character name that arrived the moment the show did.
+\item
+  A caution on the source. The HBO catalogue includes films streamed on
+  the service, not only its own productions, so entries like Zander or
+  Lyric are candidate associations rather than proven causes. The
+  strongest cases are the distinctive names tied to genuinely popular,
+  character-led shows.
 \end{itemize}
 
 \subsection*{How fast a culture names a
@@ -537,8 +561,10 @@ child}\label{how-fast-a-culture-names-a-child}
 \addcontentsline{toc}{subsection}{How fast a culture names a child}
 
 Pooling every matched name and lining each one up on the year its
-cultural moment landed gives an event study, the average naming response
-to a hit or a premiere.
+trigger landed gives an event study, the average naming response to a
+hit or a premiere. Each name is scaled to its own peak, so the curve
+reads as the share of a name's eventual high point reached at each step
+from the event.
 
 \begin{figure}[H]
 
@@ -552,13 +578,21 @@ to a hit or a premiere.
 \begin{itemize}
 \tightlist
 \item
-  The response is fast. Both music and screen names lift within a year
-  of the event and peak inside three, so naming tracks culture almost in
-  real time.
+  The event is the hinge. Both music and screen names sit near a tenth
+  of their peak in the years before, then turn upward the moment the hit
+  or premiere lands.
 \item
-  Music moves harder than screen. A hit record lifts its name more
-  sharply than a premiere does, which fits a song's instant, repeated
-  national reach against a show's slower build.
+  Music is fast and front-loaded. A charting name reaches roughly two
+  thirds of its peak within a single year and tops out inside three,
+  matching a song's instant, saturating reach before it fades.
+\item
+  Screen is slow and durable. A character name climbs gently and is
+  still rising six years on, which fits a show that builds its audience
+  season by season.
+\item
+  Either way the response is quick. Within a year or two of the moment
+  the name is already well on its way, so naming tracks culture almost
+  in real time.
 \end{itemize}
 
 \section*{What names follow}\label{what-names-follow}

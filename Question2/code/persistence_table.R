@@ -2,7 +2,8 @@
 # mean rank similarity by gender and horizon, before and from 1990, with the gap.
 persistence_table <- function(pers){
     pers %>%
-        mutate(Era    = if_else(Year < 1990, "Pre-1990", "1990 onward"), # the two eras
+        mutate(Era = factor(if_else(Year < 1990, "Pre-1990", "1990 onward"),
+                            levels = c("Pre-1990", "1990 onward")), # the two eras
                Gender = recode(Gender, M = "Boys", F = "Girls"),
                Horizon = str_c(Horizon, "-year")) %>%
         group_by(Gender, Horizon, Era) %>%

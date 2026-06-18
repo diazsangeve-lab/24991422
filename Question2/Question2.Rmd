@@ -82,8 +82,11 @@ linestretch: 1.2                # Set distance between lines.
 link-citations: TRUE            # This creates dynamic links to the papers in reference list.
 
 ### Adding additional latex packages:
-# header-includes:
-#    - \usepackage{colortbl} # Add additional packages here.
+header-includes:
+   - \usepackage{colortbl} # Add additional packages here.
+   - \usepackage{chngcntr}
+   - \counterwithout{figure}{section}
+   - \counterwithout{table}{section}
 
 output:
   pdf_document:
@@ -146,9 +149,13 @@ fade_names <- spikes  %>%
     slice_max(Growth, n = 6) %>% 
     pull(Name)
 
-dist_names <- matches %>% 
-    filter(Ratio >= 4) %>% 
-    slice_max(Post,  n = 6) %>% 
+dist_names <- tot %>%
+    group_by(Name) %>%
+    summarise(peak = max(Count), 
+              last = Count[which.max(Year)], 
+              .groups = "drop") %>%
+    filter(peak >= 10000, last < 0.12 * peak) %>%   # huge once, largely gone now
+    slice_max(peak, n = 6) %>% 
     pull(Name)
 
 bb_events  <- bb  %>% 
@@ -250,12 +257,14 @@ plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The shar
 - Most of them fade. The same names that spike fastest tend to collapse within a few years, which is the surge-level reflection of the falling persistence in the previous section.
 - Colour ties cause to effect. Where our datasets reach the moment, screen characters and singers account for the surge, and the rest sit unexplained, waiting for the deeper look that follows.
 
-A complementary view scales each standout name to its own peak, so the shape and
-timing of each wave can be compared directly.
+A complementary view turns to the biggest names of the past century and scales each to its own peak, so the shape of each rise and fall can be read directly.
 
 ```{r fig-dist, fig.cap = "The life of several culture-driven names, each scaled to its own peak.", fig.height = 3.4, fig.width = 7}
 plot_name_distribution(tot, dist_names)
 ```
+
+- Even the giants are temporary. Linda and Lisa tower over their decades and then all but vanish, each now a fraction of a percent of its own peak.
+- This is the persistence finding seen one name at a time. No name holds the top for long, the same impermanence the Spearman series measured in aggregate.
 
 # The sound and the screen {-}
 
@@ -279,8 +288,8 @@ plot_trajectories(tot, bb_events$Name, events = bb_events, from = 1975,
                   title = "Named after the charts", subtitle = "Babies named for chart-topping singers")
 ```
 
-- The Whitney effect is real and it generalises. Whitney rises with Houston in the mid 1980s, and the same pattern repeats for Sade, Aaliyah, Mya and Rihanna, each climbing in the years after the singer broke through.
-- The clearest cases are names the chart all but created. Sade and Rihanna barely existed before their first hit and then ran into the thousands.
+- The chart all but creates names. Sade and Rihanna barely existed before their first hit and then ran into the thousands, with Aaliyah close behind, while Zhane and Carly show the same shape on a smaller scale.
+- The brief's Whitney example is the same mechanism in a milder form. Whitney was already a known name, 1,547 births in 1982, and Houston lifted it more than sixfold to 9,719 by 1986. Because it was already common it sits just outside a table built to surface names the charts created from almost nothing.
 
 ## Named after the screen {-}
 
@@ -298,20 +307,22 @@ plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
                   title = "Named after the screen", subtitle = "Babies named for popular screen characters")
 ```
 
-- Characters travel from the screen into the register. Dawson climbs after Dawson's Creek, Meadow after The Sopranos, and Whitley after A Different World, each within a year or two of the premiere.
+- Characters travel from the screen into the register. Meadow rises after The Sopranos, Whitley after A Different World, and Imani after Coming to America, each within a year or two of the title appearing.
 - The supervisor's Katina is the same mechanism a generation earlier, a character name that arrived the moment the show did.
+- A caution on the source. The HBO catalogue includes films streamed on the service, not only its own productions, so entries like Zander or Lyric are candidate associations rather than proven causes. The strongest cases are the distinctive names tied to genuinely popular, character-led shows.
 
 ## How fast a culture names a child {-}
 
-Pooling every matched name and lining each one up on the year its cultural moment
-landed gives an event study, the average naming response to a hit or a premiere.
+Pooling every matched name and lining each one up on the year its trigger landed gives an event study, the average naming response to a hit or a premiere. Each name is scaled to its own peak, so the curve reads as the share of a name's eventual high point reached at each step from the event.
 
 ```{r fig-event, fig.cap = "Average naming response around the cultural event, music against screen.", fig.height = 2.8, fig.width = 7}
 plot_event_study(tot, ev_events)
 ```
 
-- The response is fast. Both music and screen names lift within a year of the event and peak inside three, so naming tracks culture almost in real time.
-- Music moves harder than screen. A hit record lifts its name more sharply than a premiere does, which fits a song's instant, repeated national reach against a show's slower build.
+- The event is the hinge. Both music and screen names sit near a tenth of their peak in the years before, then turn upward the moment the hit or premiere lands.
+- Music is fast and front-loaded. A charting name reaches roughly two thirds of its peak within a single year and tops out inside three, matching a song's instant, saturating reach before it fades.
+- Screen is slow and durable. A character name climbs gently and is still rising six years on, which fits a show that builds its audience season by season.
+- Either way the response is quick. Within a year or two of the moment the name is already well on its way, so naming tracks culture almost in real time.
 
 # What names follow {-}
 
