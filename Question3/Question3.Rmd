@@ -1,0 +1,349 @@
+---
+# IMPORTANT: Change settings here, but DO NOT change the spacing AT ALL.
+# Remove comments and add values where applicable.
+# The descriptions below should be self-explanatory
+
+title: "Loans And Credit Analysis"
+#subtitle: "This will appear as Right Header"
+
+documentclass: "elsarticle"
+
+# --------- Thesis title (Optional - set to FALSE by default).
+# You can move the details below around as you please.
+Thesis_FP: FALSE
+# Entry1: "An unbelievable study with a title spanning multiple lines."
+# Entry2: "\\textbf{Some Guy}" # textbf for bold
+# Entry3: "A thesis submitted toward the degree of Doctor of Philosophy"
+# Uni_Logo: Tex/Logo.png # Place a logo in the indicated location (from your root, e.g. defaults to ~/Tex/Logo.png) and uncomment this line. Leave uncommented for no image
+# Logo_width: 0.3 # If using a logo - use this to set width (size) of image
+# Entry4: "Under the supervision of: \\vfill Prof. Joe Smith and Dr. Frank Smith"
+# Entry5: "Stellenbosch University"
+# Entry6: April 2020
+# Entry7:
+# Entry8:
+
+# --------- Front Page
+# Comment: ----- Follow this pattern for up to 5 authors
+AddTitle: TRUE # Use FALSE when submitting to peer reviewed platform. This will remove author names.
+Author1: "Diaz Sangeve"  # First Author - note the thanks message displayed as an italic footnote of first page.
+Ref1: "Stellenbosch University, Stellenbosch, South Africa" # First Author's Affiliation
+Email1: "24991422\\@sun.ac.za" # First Author's Email address
+
+# Author2: "John Smith"
+# Ref2: "Some other Institution, Cape Town, South Africa"
+# Email2: "John\\@gmail.com"
+# CommonAffiliation_12: TRUE # If Author 1 and 2 have a common affiliation. Works with _13, _23, etc.
+# 
+# Author3: "John Doe"
+# Email3: "Joe\\@gmail.com"
+
+CorrespAuthor_1: TRUE  # If corresponding author is author 3, e.g., use CorrespAuthor_3: TRUE
+
+# Comment out below to remove both. JEL Codes only given if keywords also given.
+# keywords: "Multivariate GARCH \\sep Kalman Filter \\sep Copula" # Use \\sep to separate
+# JELCodes: "L250 \\sep L100"
+
+# ----- Manage headers and footers:
+#BottomLFooter: $Title$
+#BottomCFooter:
+#TopLHeader: \leftmark # Adds section name at topleft. Remove comment to add it.
+BottomRFooter: "\\footnotesize Page \\thepage" # Add a '#' before this line to remove footer.
+addtoprule: TRUE
+addfootrule: TRUE               # Use if footers added. Add '#' to remove line.
+
+# --------- page margins:
+margin: 2.3 # Sides
+bottom: 2 # bottom
+top: 2.5 # Top
+HardSet_layout: TRUE # Hard-set the spacing of words in your document. This will stop LaTeX squashing text to fit on pages, e.g.
+# This is done by hard-setting the spacing dimensions. Set to FALSE if you want LaTeX to optimize this for your paper.
+
+# --------- Line numbers
+linenumbers: FALSE # Used when submitting to journal
+
+# ---------- References settings:
+# You can download cls format here: https://www.zotero.org/ - simply search for your institution. You can also edit and save cls formats here: https://editor.citationstyles.org/about/
+# Hit download, store it in Tex/ folder, and change reference below - easy.
+bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
+csl: Tex/harvard-stellenbosch-university.csl # referencing format used.
+# By default, the bibliography only displays the cited references. If you want to change this, you can comment out one of the following:
+#nocite: '@*' # Add all items in bibliography, whether cited or not
+# nocite: |  # add specific references that aren't cited
+#  @grinold2000
+#  @Someoneelse2010
+
+# ---------- General:
+RemovePreprintSubmittedTo: TRUE  # Removes the 'preprint submitted to...' at bottom of titlepage
+Journal: "Journal of Finance"   # Journal that the paper will be submitting to, if RemovePreprintSubmittedTo is set to TRUE.
+toc: TRUE                       # Add a table of contents
+numbersections: TRUE             # Should sections (and thus figures and tables) be numbered?
+fontsize: 11pt                  # Set fontsize
+linestretch: 1.2                # Set distance between lines.
+link-citations: TRUE            # This creates dynamic links to the papers in reference list.
+
+### Adding additional latex packages:
+header-includes:
+   - \usepackage{colortbl} # Add additional packages here.
+   - \providecommand{\pandocbounded}[1]{#1}
+   - \usepackage{chngcntr}
+   - \counterwithout{figure}{section}
+   - \counterwithout{table}{section}
+
+output:
+  pdf_document:
+    keep_tex: TRUE
+    template: Tex/TexDefault.txt
+    fig_width: 3.5 # Adjust default figure sizes. This can also be done in the chunks of the text.
+    fig_height: 3.5
+abstract: |
+  Lending Club loans default at a rate that is set, above all, by the grade the lender already assigns. Using one million anonymised loans, this report defines default as a loan charged off against one fully paid and asks what truly drives it. Credit grade separates a seven percent default rate at A from a fifty seven percent rate at G, a fifty point gap that dwarfs every other factor. Loan term and debt to income add real risk, while home ownership and employment length, the two pillars of the Institute's heuristics, move default only modestly and largely as a by product of grade. States differ by about thirteen points, yet most of that gap is composition rather than culture, and Texas sits squarely at the national average. The grading system works, the interest rate it sets follows credit rather than age, and a debt to income cap near twenty to twenty five gives the Director a clean tolerance dial.
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.align = "center", dev = "pdf", fig.pos = "H")
+
+rm(list = ls()); gc()
+
+if(!require(pacman)) install.packages("pacman")
+pacman::p_load(tidyverse, lubridate, scales, knitr, kableExtra)
+
+# Source every function in the code folder:
+list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+
+```{r data, include = FALSE, cache = TRUE}
+raw <- load_loans("data/Loan_Cred/loan_data.rds") # the one-million-row extract
+
+status <- raw %>% 
+    count(loan_status) # full status breakdown, for the data section
+
+loans <- prep_default(raw) # resolved loans with the default flag and derived fields
+
+# Headline figures:
+base <- round(mean(loans$default) * 100, 1) # overall default rate
+
+n_res <- nrow(loans) # resolved loans
+
+n_off <- sum(loans$default) # charged off
+
+n_paid <- n_res - n_off # fully paid
+
+n_current <- status %>% 
+    filter(loan_status == "Current") %>% 
+    pull(n) # up to date
+
+n_part <- status %>% 
+    filter(loan_status %in% c("Late (31-120 days)", # partial default
+                              "Late (16-30 days)", "In Grace Period")) %>% 
+    pull(n) %>% 
+    sum()
+
+gr <- default_rate(loans, grade) %>% 
+    arrange(grade)   # default by grade
+
+gA <- gr$Default[gr$grade == "A"]# best grade
+gG <- gr$Default[gr$grade == "G"]# worst grade
+
+tm <- default_rate(loans, term) # default by term
+
+ho <- default_rate(loans, home_ownership) # default by ownership
+
+# Key-driver spread: the gap between the safest and riskiest band of each factor.
+sp <- function(tab) round(diff(range(tab$Default)), 1) # pp spread of a summary
+
+bandit <- function(x, b, l) cut(x, b, labels = l)
+
+drivers <- tibble(
+  Driver = c("Credit grade", "Interest rate", "Loan term", "Debt-to-income",
+             "Recent inquiries", "Revolving use", "Home ownership", 
+             "Employment length", "Public records"),
+  Spread = c(
+    sp(default_rate(loans, grade)),
+    sp(default_rate(mutate(loans, b = bandit(int_rate, c(0,10,15,20,100), c("<10","10-15","15-20","20+"))), b)),
+    sp(default_rate(loans, term)),
+    sp(default_rate(filter(loans, !is.na(dti)) %>% mutate(b = bandit(dti, c(0,10,20,30,60), c("0-10","10-20","20-30","30+"))), b)),
+    sp(default_rate(mutate(loans, b = bandit(inq_last_6mths, c(-1,0,1,2,99), c("0","1","2","3+"))), b)),
+    sp(default_rate(mutate(loans, b = bandit(revol_util, c(-1,25,50,75,1000), c("<25","25-50","50-75","75+"))), b)),
+    sp(default_rate(loans, home_ownership)),
+    sp(default_rate(loans, emp_length)),
+    sp(default_rate(mutate(loans, b = bandit(pub_rec, c(-1,0,99), c("0","1+"))), b)))) %>%
+  arrange(desc(Spread))
+
+# Heuristic 1: home owner and ten-plus years employed, on short-term loans.
+heur <- loans %>% 
+    filter(short) %>% 
+    default_rate(owner, emp10) %>% 
+    arrange(owner, emp10)
+
+hb <- loans %>% 
+    filter(short) %>% 
+    mutate(both = owner & emp10) %>% 
+    default_rate(both)
+
+heur_both <- hb$Default[hb$both]
+heur_rest <- hb$Default[!hb$both]
+
+# Interest rate against grade (the price of credit).
+ir_cor <- loans %>% 
+    mutate(gn = as.integer(grade)) %>% 
+    filter(!is.na(int_rate)) %>%
+            summarise(c = cor(gn, int_rate)) %>% 
+    pull(c) %>% 
+    round(2)
+
+ir_grade <- loans %>% 
+    group_by(grade) %>% 
+    summarise(Rate = round(mean(int_rate, na.rm = TRUE), 1), .groups = "drop")
+
+# States: observed default against what each state's grade mix predicts.
+natg <- loans %>% 
+    group_by(grade) %>% 
+    summarise(g = mean(default), .groups = "drop")
+
+state <- loans %>%
+    left_join(natg, by = "grade") %>% 
+    group_by(addr_state) %>%
+            summarise(Observed = round(mean(default) * 100, 1), Expected = round(mean(g) * 100, 1),
+                      Loans = n(), .groups = "drop") %>%
+            filter(Loans >= 500) %>% 
+    mutate(Excess = round(Observed - Expected, 1))
+
+tx <- state %>% 
+    filter(addr_state == "TX") # for Texas
+
+# DTI cap by tolerance: the highest band whose default rate is still under each ceiling.
+
+dti_band <- loans %>% 
+    filter(!is.na(dti)) %>%
+  mutate(band = cut(dti, c(0,10,15,20,25,30,35,40,60), right = FALSE,
+                    labels = c("0-10","10-15","15-20","20-25","25-30","30-35","35-40","40+"))) %>%
+  group_by(band) %>%
+    summarise(Default = round(mean(default) * 100, 1), .groups = "drop")
+
+cap_for <- function(tol){ ok <- dti_band$band[dti_band$Default <= tol] # bands still under the ceiling
+  edges <- c("0-10"=10,"10-15"=15,"15-20"=20,"20-25"=25,"25-30"=30,"30-35"=35,"35-40"=40,"40+"=60)
+  if(length(ok)) unname(edges[as.character(tail(ok, 1))]) else NA } # upper edge of the highest safe band
+
+cap_tab  <- tibble(`Default tolerance` = c("18%","20%","22%","25%"),
+                   `DTI cap` = c(cap_for(18), cap_for(20), cap_for(22),
+                                 cap_for(25)))
+
+# Does the cap differ by state? Default rate on high-DTI (>20) loans, by state.
+hidti <- loans %>% 
+    filter(dti > 20, dti <= 60) %>% 
+    default_rate(addr_state) %>% 
+    filter(Loans >= 400)
+
+hidti_lo <- hidti %>% 
+    arrange(Default) %>% slice_head(n = 1)# safest state at high DTI
+
+hidti_hi <- hidti %>% arrange(desc(Default)) %>% slice_head(n = 1) # riskiest state at high DTI
+
+# Grade still works for the newest borrowers (short credit history, the age proxy).
+young <- loans %>% 
+    filter(hist_yrs < 10) %>% 
+    default_rate(grade) %>%
+    arrange(grade)
+
+yA <- young$Default[young$grade == "A"]
+yG <- young$Default[young$grade == "G"]
+
+age_tab  <- loans %>% 
+    filter(hist_yrs >= 0, hist_yrs <= 50) %>%
+    mutate(band = cut(hist_yrs, c(0,5,10,15,20,60), 
+                      labels = c("<5","5-10","10-15","15-20","20+"))) %>%
+  group_by(band) %>% 
+    summarise(Default = round(mean(default) * 100, 1), .groups = "drop")
+
+age_lo   <- age_tab$Default[age_tab$band == "20+"]
+age_hi <- age_tab$Default[age_tab$band == "<5"]
+```
+
+\newpage
+
+# Reading default risk in a million loans {-}
+
+A loan book is a record of promises, some kept and some broken. This report reads the Lending Club extract the Director provided, one million anonymised loans, and asks the plain question behind his mandate, which borrowers fail to repay and why. The answer matters because the Institute carries a set of long-held beliefs about who defaults, and the Director wants them tested against the data rather than taken on faith.
+
+The argument that follows has a single spine. Default in this portfolio is, above almost everything else, a story about creditworthiness as the lender already measures it. The grade Lending Club assigns at origination separates the safe from the risky more sharply than any borrower trait the Institute leans on, and once grade is on the table the heuristics about home ownership, employment and state culture shrink to the margins. The report builds that case factor by factor and closes on what it means for assessing a borrower.
+
+# The data, and what counts as default {-}
+
+A loan only has a verdict once it has run its course. Following the Director's own tip, default is defined on resolved loans, those that were either paid in full or charged off as a loss, and the charged-off loans are the defaults. Loans still marked Current are up to date and tell us nothing yet, so they are set aside, as are the loans in collections. Of the million loans, `r format(n_current, big.mark=",")` are current and a further `r format(n_part, big.mark=",")` sit in the partial-default band of late or grace-period payments, the cases the recovery team is still working. That leaves `r format(n_res, big.mark=",")` resolved loans, of which `r format(n_off, big.mark=",")` were charged off, an overall default rate of `r base` percent.
+
+# What separates a defaulter {-}
+
+ The cleanest way to rank the drivers is to ask how far default moves between the safest and the riskiest band of each factor. Table \ref{drivertab} does exactly that, and the order is stark. Credit grade opens a gap of `r drivers$Spread[1]` percentage points from its best band to its worst, with interest rate next and itself little more than a restatement of grade. Loan term and debt-to-income each move default by about fifteen points, recent credit inquiries by a little less, and the factors the Institute prizes sit lower down. Home ownership moves default by only `r drivers$Spread[drivers$Driver=="Home ownership"]` points, and the `r drivers$Spread[drivers$Driver=="Employment length"]` points credited to employment length are misleading, since almost all of that gap comes from loans with no employment recorded rather than from tenure itself.
+
+```{r drivertab}
+drivers %>% rename(`Spread (pp)` = Spread) %>%
+  kable(caption = "\\label{drivertab}Key risk drivers, ranked by the gap in default rate between their safest and riskiest band", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+Grade earns its place at the top because it behaves exactly as a grading system should. Figure \ref{gradefig} shows default climbing without a single reversal from `r round(gA,1)` percent at A to `r round(gG,1)` percent at G, a near eightfold widening across the scale. By compressing dozens of credit-file signals into one ordered letter, Lending Club hands an assessor most of the predictive power in a single field, which is the strongest single finding in the data and the anchor for the rest of the report.
+
+```{r gradefig, fig.cap = "Default rate by Lending Club grade, resolved loans only.\\label{gradefig}", fig.height = 3.2, fig.width = 7}
+plot_grade(loans)
+```
+
+# Which customers default most {-}
+
+The question has layers, and the first layer is the one the Institute states directly. Its belief is that home owners and borrowers employed for more than ten years default far less often on short-term loans. Restricting to the thirty-six month loans and crossing the two traits, Table \ref{heurtab} shows the heuristic is half right and half misdirected. Borrowers who both own property and have ten years of tenure default `r round(heur_both,1)` percent of the time against `r round(heur_rest,1)` percent for everyone else, a real gap. The decomposition, though, shows the benefit flows almost entirely from ownership. A renter with ten years of tenure defaults at much the same rate as a renter without it, so employment length on its own is close to noise.
+
+```{r heurtab}
+heur %>% transmute(`Owns property` = ifelse(owner, "Yes", "No"),
+                   `10+ years employed` = ifelse(emp10, "Yes", "No"),
+                   `Default (%)` = round(Default, 1), Loans) %>%
+  kable(caption = "\\label{heurtab}Default on short-term (36 month) loans, by home ownership and employment length", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+Stacking the stronger drivers tells the fuller story of who fails to repay. The deepest risk sits where a poor grade meets a sixty-month term, the long loans the Director should watch, since term alone lifts default from `r round(tm$Default[tm$term=="36 months"],1)` percent on short loans to `r round(tm$Default[tm$term=="60 months"],1)` percent on long ones. Recent behaviour compounds it. Borrowers with no credit inquiry in the last six months default near twenty percent, those with four or more near thirty-five, and a borrower carrying a public record or running their revolving credit to the limit adds several points again. The riskiest customer is not defined by a demographic label but by a low grade, a long term, a stretched debt load and a flurry of recent credit-seeking.
+
+# The grading system and the price of credit {-}
+
+The Director also asked whether grade predicts default for younger borrowers and whether interest rates follow age, occupation and credit. With no age field, the honest test uses credit-history length as a proxy, and shorter histories do default more, rising from `r age_lo` percent for borrowers with twenty or more years of history to `r age_hi` percent for those with under five. Grade survives that test cleanly. Among borrowers with less than ten years of history, the closest the data comes to the young, default still rises from `r round(yA,1)` percent at the A grade to `r round(yG,1)` percent at G without a reversal, so the grade is a great indicator regardless of how new the borrower is to credit.
+
+The price of credit is settled almost entirely by that same grade. Table \ref{irtab} lines the average interest rate up against the grade, and the two move together at a correlation of `r ir_cor`, close to a straight line. Interest rate is, in effect, a continuous restatement of the grade. The claim that rates are determined by credit is therefore strongly supported, since grade is the credit measure Lending Club uses, while the parts of the heuristic that invoke age and occupation cannot be tested and would in any case have little left to explain once grade has done its work.
+
+```{r irtab}
+ir_grade %>% 
+    rename(`Mean interest rate (%)` = Rate, Grade = grade) %>%
+  kable(caption = "\\label{irtab}Average interest rate by grade. The rate tracks the grade almost exactly", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+# Where borrowers default, and whether Texas stands apart {-}
+
+States do differ, but less than the raw numbers suggest and less than a story about culture would imply. Figure \ref{statefig} ranks the states, and the spread runs from the low teens to the high twenties, a gap of about thirteen points between the safest state and the riskiest. The pattern has a geography to it, with the lowest rates in the Northeast and Pacific Northwest and the highest across the Deep South, which is the kind of regularity that tempts the word culture.
+
+```{r statefig, fig.cap = "Default rate by state, resolved loans, Texas highlighted in red.\\label{statefig}", fig.height = 6.0, fig.width = 6.5}
+plot_states(loans)
+```
+
+Most of that spread, though, is composition rather than culture. When each state is measured against the default rate its own grade mix would predict, the gaps narrow sharply. The Deep South still carries a genuine excess of a few points above expectation, so a modest residual culture effect may exist, but it is a fraction of the headline thirteen. Texas, the Director's own state, is the clearest case of all. It defaults at `r tx$Observed` percent against a national rest near the same level, its grade-adjusted excess is just `r tx$Excess` of a point, and it tracks the national grade pattern almost exactly. On this evidence Texas is unremarkable, neither a haven nor a hotspot, which is itself a useful thing for a Texas director to know.
+
+# A defensible debt-to-income cap {-}
+
+Debt-to-income is the lever the Director can actually pull at the point of assessment, and the data gives it a clean shape. Figure \ref{dtifig} shows default rising smoothly with the ratio, from under seventeen percent in the lowest band to the low thirties at the top, with no cliff edge that marks an obvious natural cap. Because the curve is smooth, the right cap is a policy choice about tolerance rather than a number the data dictates, so Table \ref{captab} turns it into a dial.
+
+```{r dtifig, fig.cap = "Default rate across debt-to-income bands, with the 20 and 25 percent tolerance lines.\\label{dtifig}", fig.height = 3.2, fig.width = 7}
+plot_dti(loans)
+```
+
+```{r captab}
+cap_tab %>%
+  kable(caption = "\\label{captab}Debt-to-income cap implied by each level of default tolerance", booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+A book willing to tolerate roughly a fifth of resolved loans defaulting can lend up to a debt-to-income near twenty, while a more cautious book aiming below that should draw the line closer to fifteen. Whether the cap should move by state is a fair question, and the answer is a qualified yes. The same high debt load carries very different risk across states, with default above a debt-to-income of twenty running near `r round(hidti_lo$Default,0)` percent in the safest state and above `r round(hidti_hi$Default,0)` in the riskiest, so a lender could reasonably tighten the cap where the local book runs hot. Texas again sits close to the national line, so a single national cap would serve the Director's own state well enough.
+
+# What this means for assessing a borrower {-}
+
+Pulled together, the evidence points the Institute toward credit signals and away from demographic ones. The grade already carries most of the predictive weight, so the cheapest improvement an assessor can make is to use it fully and to lean on the handful of behavioural fields that add to it, namely the loan term, the debt-to-income ratio and the count of recent credit inquiries. These are the levers that move default by ten points or more, and three of them, term, debt and inquiries, can be read straight off an application.
+
+The Institute's three heuristics survive the data only in part. The belief about home owners and long-tenured employees is half true, since ownership does lower default modestly while employment length on its own barely moves it, and both are small next to grade. The belief that states differ by culture is mostly composition, real at the margin in the Deep South but not the force the heuristic implies, and Texas is ordinary. The belief that grade predicts default and that rates follow credit is the one that holds firmly, with grade working even for the newest borrowers and the interest rate set almost entirely by it. The practical message is steady and slightly deflating for a book that prizes its rules of thumb. The lender already holds the best predictor it has in the grade, and the surest way to reduce default is to price and cap against credit and debt rather than against the borrower's address or years on the job.
