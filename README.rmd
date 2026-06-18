@@ -337,6 +337,11 @@ topg <- movies %>%
     pull(genre)
 
 content_g <- c("drama","comedy","thriller","romance","action","documentation","crime")
+
+credits <- load_credits("Question4/data/netflix/credits.rds")# cast and crew, one row per person per title
+mvcsv   <- load_movies_csv("Question4/data/netflix/netflix_movies.csv")# classic export, carries the age rating
+age_tab <- mvcsv %>% filter(type == "Movie") %>% # six most common age ratings among films
+    count(rating, name = "Films") %>% slice_max(Films, n = 6, with_ties = FALSE)
 ```
 
 Ranking the production countries by how many films each puts into the catalogue maps its centre of gravity. The library is American at its core but far from American alone, with India a clear second.
@@ -376,4 +381,18 @@ distinctive_words(movies, content_g) %>%
     group_by(genre) %>%
     summarise(`Distinctive words` = str_c(word, collapse = ", "), .groups = "drop") %>%
     kable()
+```
+
+The people behind the films echo that country map. Counting the actors who appear on the most in-scope titles puts Indian cinema firmly on top, which is a large part of why India sits so high in the catalogue.
+
+```{r q4-actors}
+top_actors(credits, movies, 8) %>%
+    kable(caption = "Actors credited on the most Netflix films up to 2022")
+```
+
+The catalogue also skews mature rather than family. Tallying the age ratings in the classic export, the certificate that comes up most often by a clear margin is TV-MA, so adult-oriented content is where the volume sits.
+
+```{r q4-age}
+age_tab %>% rename(`Age rating` = rating) %>%
+    kable(caption = "Most common age ratings among Netflix films, from the classic catalogue export")
 ```

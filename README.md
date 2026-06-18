@@ -557,6 +557,11 @@ topg <- movies %>%
     pull(genre)
 
 content_g <- c("drama","comedy","thriller","romance","action","documentation","crime")
+
+credits <- load_credits("Question4/data/netflix/credits.rds")# cast and crew, one row per person per title
+mvcsv   <- load_movies_csv("Question4/data/netflix/netflix_movies.csv")# classic export, carries the age rating
+age_tab <- mvcsv %>% filter(type == "Movie") %>% # six most common age ratings among films
+    count(rating, name = "Films") %>% slice_max(Films, n = 6, with_ties = FALSE)
 ```
 
 Ranking the production countries by how many films each puts into the
@@ -633,3 +638,47 @@ distinctive_words(movies, content_g) %>%
 | drama | biopic, aftermath, navigates, tensions, tested, ailing |
 | romance | romantic, handsome, crush, romance, chef, marry |
 | thriller | suspects, thriller, investigating, kills, heist, killers |
+
+The people behind the films echo that country map. Counting the actors
+who appear on the most in-scope titles puts Indian cinema firmly on top,
+which is a large part of why India sits so high in the catalogue.
+
+``` r
+top_actors(credits, movies, 8) %>%
+    kable(caption = "Actors credited on the most Netflix films up to 2022")
+```
+
+| name                  | Films |
+|:----------------------|------:|
+| Shah Rukh Khan        |    30 |
+| Boman Irani           |    25 |
+| Kareena Kapoor Khan   |    25 |
+| Anupam Kher           |    24 |
+| Paresh Rawal          |    22 |
+| Nawazuddin Siddiqui   |    20 |
+| Priyanka Chopra Jonas |    20 |
+| Amitabh Bachchan      |    19 |
+
+Actors credited on the most Netflix films up to 2022
+
+The catalogue also skews mature rather than family. Tallying the age
+ratings in the classic export, the certificate that comes up most often
+by a clear margin is TV-MA, so adult-oriented content is where the
+volume sits.
+
+``` r
+age_tab %>% rename(`Age rating` = rating) %>%
+    kable(caption = "Most common age ratings among Netflix films, from the classic catalogue export")
+```
+
+| Age rating | Films |
+|:-----------|------:|
+| TV-MA      |  2062 |
+| TV-14      |  1427 |
+| R          |   797 |
+| TV-PG      |   540 |
+| PG-13      |   490 |
+| PG         |   287 |
+
+Most common age ratings among Netflix films, from the classic catalogue
+export
