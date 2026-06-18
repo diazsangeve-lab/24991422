@@ -25,7 +25,8 @@ Texevier::create_template(directory = glue::glue("{CHOSEN_LOCATION}Solution/2499
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
-                      fig.align = "center", fig.width = 7, fig.height = 4)
+                      fig.align = "center", fig.width = 7, fig.height = 4,
+                      dpi = 200, dev = "ragg_png", out.width = "100%")
 
 rm(list = ls()); gc()    # clean the environment
 if(!require(pacman)) install.packages("pacman")

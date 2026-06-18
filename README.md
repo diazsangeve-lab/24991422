@@ -59,7 +59,7 @@ rate highest, so they should anchor the range.
 plot_roast(Coffee)
 ```
 
-<img src="README_files/figure-markdown_github/q1-roast-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q1-roast-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 The second shows where the value sits. East African beans rate within a
 point of Panama at a fraction of the price, which is the core sourcing
@@ -69,7 +69,7 @@ argument.
 plot_region_value(Coffee)
 ```
 
-<img src="README_files/figure-markdown_github/q1-region-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q1-region-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 The flavour fingerprint uses the data-derived words, showing which ones
 are far more common among the very best coffees than across the shelf as
@@ -79,7 +79,7 @@ a whole.
 plot_flavour_fingerprint(Coffee, keywords)
 ```
 
-<img src="README_files/figure-markdown_github/q1-flavour-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q1-flavour-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Finally the supplier leaderboard separates the value champions from the
 premium showpieces.
@@ -88,7 +88,7 @@ premium showpieces.
 plot_supplier_leaderboard(Coffee)
 ```
 
-<img src="README_files/figure-markdown_github/q1-supplier-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q1-supplier-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 # Question 2, Baby Names
 
@@ -157,7 +157,7 @@ girls.
 plot_persistence(pers)
 ```
 
-<img src="README_files/figure-markdown_github/q2-persist-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-persist-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ptab %>% 
@@ -211,7 +211,7 @@ name.
 plot_spike_bubble(matches)
 ```
 
-<img src="README_files/figure-markdown_github/q2-bubble-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-bubble-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 A surge is not a lasting name. Plotting the sharpest surges over their
 full life shows most are fashions that fade within a decade.
@@ -220,7 +220,7 @@ full life shows most are fashions that fade within a decade.
 plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The sharpest surges are usually short-lived fashions")
 ```
 
-<img src="README_files/figure-markdown_github/q2-fade-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-fade-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Scaling the biggest names of the century to their own peak tells the
 same story one name at a time, with even the giants all but vanishing.
@@ -229,7 +229,7 @@ same story one name at a time, with even the giants all but vanishing.
 plot_name_distribution(tot, dist_names)
 ```
 
-<img src="README_files/figure-markdown_github/q2-dist-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-dist-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Music tests cleanly. Reading the first name of every charting act and
 asking whether babies followed shows the chart all but creating names,
@@ -261,7 +261,7 @@ plot_trajectories(tot, bb_events$Name, events = bb_events, from = 1975,
                   title = "Named after the charts", subtitle = "Babies named for chart-topping singers")
 ```
 
-<img src="README_files/figure-markdown_github/q2-bbfig-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-bbfig-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Screen does the same. Character names like Meadow after The Sopranos and
 Imani after Coming to America arrive within a year or two of the title.
@@ -291,7 +291,7 @@ plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
                   title = "Named after the screen", subtitle = "Babies named for popular screen characters")
 ```
 
-<img src="README_files/figure-markdown_github/q2-hbofig-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-hbofig-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Pooling every matched name on the year its trigger landed gives the
 average naming response, the event study that closes the question.
@@ -300,7 +300,7 @@ average naming response, the event study that closes the question.
 plot_event_study(tot, ev_events)
 ```
 
-<img src="README_files/figure-markdown_github/q2-event-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q2-event-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 # Question 3, Loans and Credit
 
@@ -324,7 +324,7 @@ every other factor.
 plot_grade(loans)
 ```
 
-<img src="README_files/figure-markdown_github/q3-grade-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q3-grade-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Debt-to-income gives the Director a lever. Default rises smoothly with
 the ratio, so a cap is a tolerance choice rather than a natural break.
@@ -333,7 +333,7 @@ the ratio, so a cap is a tolerance choice rather than a natural break.
 plot_dti(loans)
 ```
 
-<img src="README_files/figure-markdown_github/q3-dti-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q3-dti-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 States differ, but Texas sits squarely at the national average rather
 than apart from it.
@@ -342,7 +342,7 @@ than apart from it.
 plot_states(loans)
 ```
 
-<img src="README_files/figure-markdown_github/q3-states-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q3-states-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 # Question 4, Netflix
 
@@ -383,7 +383,7 @@ India a clear second.
 plot_countries(movies, 10)
 ```
 
-<img src="README_files/figure-markdown_github/q4-countries-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q4-countries-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Each tradition makes something different, with India on drama and
 romance, Japan on action, and the United States and Britain on
@@ -393,7 +393,7 @@ documentaries.
 plot_genre_country(movies, topc, topg)
 ```
 
-<img src="README_files/figure-markdown_github/q4-heat-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q4-heat-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 The most useful finding for an investor is that acclaim and popularity
 pull apart, with documentaries scoring high on small audiences and
@@ -403,7 +403,7 @@ thrillers doing the reverse.
 plot_ratings(movies, topg)
 ```
 
-<img src="README_files/figure-markdown_github/q4-ratings-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q4-ratings-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Length is a fingerprint too, with India running far longer than the
 American median.
@@ -412,7 +412,7 @@ American median.
 plot_length(movies, topc)
 ```
 
-<img src="README_files/figure-markdown_github/q4-length-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q4-length-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Set against HBO, Netflix trades quality for breadth, scoring lower in
 every genre.
@@ -421,7 +421,7 @@ every genre.
 plot_hbo(movies, hbo, content_g)
 ```
 
-<img src="README_files/figure-markdown_github/q4-hbo-1.png" alt="" style="display: block; margin: auto;" />
+<img src="README_files/figure-markdown_github/q4-hbo-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 The description text confirms the genre map, since each genre reaches
 for its own vocabulary.
