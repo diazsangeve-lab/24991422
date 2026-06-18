@@ -61,10 +61,10 @@ keywords <- derive_keywords(Coffee, n = 12) # indicator words, straight from the
 Coffee <- score_keywords(Coffee, keywords) # score each coffee on those words
 ```
 
-This plot gives the average rating of every coffee grouped by roast
-level. It shows that the lighter roasts come out on top, with light and
-medium-light rating highest and the score sliding as the roast darkens,
-so the range should be anchored on lighter roasts.
+Grouping every coffee by roast level and averaging the rating sets the
+roast strategy. The lighter roasts come out on top, with light and
+medium-light scoring highest and the rating sliding as the roast
+darkens, so the range should be built on lighter roasts.
 
 ``` r
 plot_roast(Coffee)
@@ -72,10 +72,10 @@ plot_roast(Coffee)
 
 <img src="README_files/figure-markdown_github/q1-roast-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot places each growing country by its average rating against its
-average price per 100g. It shows that East African origins like Kenya
-and Ethiopia rate within a point of Panama while costing a fraction as
-much, which is the core sourcing argument.
+Each growing country sits here by its average rating against its average
+price per 100g. East African origins like Kenya and Ethiopia land within
+a point of Panama while costing a fraction as much, and that gap is the
+core sourcing argument.
 
 ``` r
 plot_region_value(Coffee)
@@ -83,10 +83,10 @@ plot_region_value(Coffee)
 
 <img src="README_files/figure-markdown_github/q1-region-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot compares how often each data-derived flavour word appears in
-the very best coffees against the shelf as a whole. It shows that words
-like juicy and saturated are far more common among top-rated coffees, so
-those are the notes worth stocking towards.
+The fingerprint weighs how often each data-derived flavour word turns up
+in the best coffees against the shelf as a whole. Words like juicy and
+saturated are far more common among top-rated coffees, which marks them
+out as the notes worth stocking towards.
 
 ``` r
 plot_flavour_fingerprint(Coffee, keywords)
@@ -94,10 +94,10 @@ plot_flavour_fingerprint(Coffee, keywords)
 
 <img src="README_files/figure-markdown_github/q1-flavour-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot ranks suppliers by their average rating and separates the
-affordable from the premium. It shows that a few roasters deliver high
-quality at low cost while a different group sits at the top of the price
-range, so the shelf can carry both a value tier and a showpiece tier.
+Ranking suppliers by their average rating pulls the affordable apart
+from the premium. A handful of roasters deliver high quality at low cost
+while a separate group holds the top of the price range, so the shelf
+can carry both a value tier and a showpiece tier.
 
 ``` r
 plot_supplier_leaderboard(Coffee)
@@ -174,10 +174,11 @@ hbo_events <- hbo %>%
 ev_events  <- matches %>% transmute(Name, Event_Year, Source)
 ```
 
-This plot tracks the rank correlation of each year’s 25 most popular
-names one, two and three years later, split by gender. It shows that the
-top names hold their position firmly through most of the century and
-then loosen after 1990, more sharply for boys than for girls.
+For every year, the 25 most popular names are followed one, two and
+three years on, and the rank correlation is drawn by gender. The top
+names hold their position firmly through most of the century before
+loosening after 1990, and that loosening runs sharper for boys than for
+girls.
 
 ``` r
 plot_persistence(pers)
@@ -202,10 +203,10 @@ ptab %>%
 
 Mean rank persistence by gender and horizon, before and from 1990
 
-This table lists the ten sharpest year-on-year name surges with the
-cause our datasets can attribute to each. It shows that the biggest
-movements are sudden spikes rather than slow drifts, and that most of
-them line up with a song or a screen character.
+Here are the ten sharpest year-on-year surges, each tagged with the
+cause the datasets can attribute. The biggest movements are sudden
+spikes rather than slow drifts, and most of them line up with a song or
+a screen character.
 
 ``` r
 sourced %>%
@@ -230,11 +231,10 @@ sourced %>%
 The ten sharpest year-on-year name surges, with the cause our datasets
 can attribute
 
-This plot places each culturally driven name by the year it surged,
-sized by how many babies took it at the peak and coloured by whether a
-singer or a screen character drove it. It shows that the surges cluster
-in the music and television era and that both sources produce names
-reaching into the thousands.
+Every culturally driven name is placed by the year it surged, sized by
+the babies it reached at the peak and coloured by whether a singer or a
+character drove it. The surges cluster in the music and television era,
+and both sources throw up names that climb into the thousands.
 
 ``` r
 plot_spike_bubble(matches)
@@ -242,9 +242,9 @@ plot_spike_bubble(matches)
 
 <img src="README_files/figure-markdown_github/q2-bubble-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot follows the names with the sharpest surges across their whole
-life rather than at the peak alone. It shows that almost all of them are
-short-lived fashions that climb fast and fade within about a decade.
+Following the sharpest surges across their whole life, rather than
+freezing them at the peak, tells a blunter story. Almost all of them are
+short-lived fashions that climb fast and fade inside a decade.
 
 ``` r
 plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The sharpest surges are usually short-lived fashions")
@@ -263,10 +263,10 @@ plot_name_distribution(tot, dist_names)
 
 <img src="README_files/figure-markdown_github/q2-dist-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This table lists the singers whose first name surged in babies after
-they first reached the Billboard top ten. It shows the chart almost
-creating names, with Sade and Rihanna climbing from near nothing into
-the thousands.
+This is the roll of singers whose first name jumped in newborns once
+they first cracked the Billboard top ten. The chart all but manufactures
+names here, with Sade and Rihanna climbing from almost nothing into the
+thousands.
 
 ``` r
 bb %>% 
@@ -336,10 +336,10 @@ plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
 
 <img src="README_files/figure-markdown_github/q2-hbofig-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot pools every matched name on the year its trigger landed and
-averages the response around it. It shows a clean event-study shape,
-with naming flat before the trigger and jumping in the years just after,
-which is the closing evidence that culture moves names.
+Pooling every matched name on the year its trigger landed and averaging
+around it gives the event study that closes the question. Naming sits
+flat before the trigger and jumps in the years just after, the cleanest
+single piece of evidence that culture moves names.
 
 ``` r
 plot_event_study(tot, ev_events)
@@ -367,13 +367,58 @@ beliefs against the data rather than to build a classifier.
 list.files('Question3/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 
 loans <- load_loans("Question3/data/Loan_Cred/loan_data.rds") %>% # the one-million-row extract
-    prep_default() # resolved loans with the default flag
+    prep_default()# resolved loans with the default flag
+
+sp <- function(tab) round(diff(range(tab$Default)), 1) # pp spread of a summary
+bandit <- function(x, b, l) cut(x, b, labels = l) # quick banding helper
+
+drivers <- tibble(# one row per factor, ranked by its spread
+  Driver = c("Credit grade","Interest rate","Loan term","Debt-to-income",
+             "Recent inquiries","Revolving use","Home ownership","Employment length","Public records"),
+  Spread = c( # for each factor, the gap in default rate between its safest and riskiest band
+    sp(default_rate(loans, grade)),  # grade A through G, grouped directly
+    sp(default_rate(mutate(loans,# interest rate has to be banded into a category first
+                           b = bandit(int_rate, c(0,10,15,20,100), c("<10","10-15","15-20","20+"))), b)),  # cut int_rate into four bands, then default rate per band
+    sp(default_rate(loans, term)), # 36 vs 60 month term, grouped directly
+    sp(default_rate(filter(loans, # drop the loans with no usable dti first
+                           !is.na(dti)) %>%
+                        mutate(b = bandit(dti, c(0,10,20,30,60), c("0-10","10-20","20-30","30+"))), b)), # band dti, then default rate per band
+    sp(default_rate(mutate(loans, b = bandit(inq_last_6mths, c(-1,0,1,2,99), c("0","1","2","3+"))), b)),  # recent credit inquiries banded 0/1/2/3+
+    sp(default_rate(mutate(loans, b = bandit(revol_util, c(-1,25,50,75,1000), c("<25","25-50","50-75","75+"))), b)), # revolving-credit use banded into quarters
+    sp(default_rate(loans, home_ownership)), # own / mortgage / rent, grouped directly
+    sp(default_rate(loans, emp_length)), # employment-length category, grouped directly
+    sp(default_rate(mutate(loans, b = bandit(pub_rec, c(-1,0,99), c("0","1+"))), b)))) %>% # public records collapsed to none vs any
+  arrange(desc(Spread)) # biggest spread first, so the strongest driver sits at the top
+
+natg  <- loans %>% 
+    group_by(grade) %>% 
+    summarise(g = mean(default), .groups = "drop")
+
+state <- loans %>% 
+    left_join(natg, by = "grade") %>% 
+    group_by(addr_state) %>% # observed vs grade-mix expectation
+    summarise(Observed = round(mean(default) * 100, 1), Expected = round(mean(g) * 100, 1),
+              Loans = n(), .groups = "drop") %>%
+    filter(Loans >= 500) %>% 
+    mutate(Excess = round(Observed - Expected, 1))
+
+dti_band <- loans %>% filter(!is.na(dti)) %>% # default rate by debt-to-income band
+    mutate(band = cut(dti, c(0,10,15,20,25,30,35,40,60), right = FALSE,
+                      labels = c("0-10","10-15","15-20","20-25","25-30","30-35","35-40","40+"))) %>%
+    group_by(band) %>% 
+    summarise(Default = round(mean(default) * 100, 1), .groups = "drop")
+
+cap_for  <- function(tol){ ok <- dti_band$band[dti_band$Default <= tol]
+    edges <- c("0-10"=10,"10-15"=15,"15-20"=20,"20-25"=25,"25-30"=30,"30-35"=35,"35-40"=40,"40+"=60)
+    if(length(ok)) unname(edges[as.character(tail(ok, 1))]) else NA } # upper edge of the highest safe band
+cap_tab  <- tibble(`Default tolerance` = c("18%","20%","22%","25%"),
+                   `DTI cap` = c(cap_for(18), cap_for(20), cap_for(22), cap_for(25)))
 ```
 
-This plot gives the default rate for each loan grade the lender assigns,
-from A to G. It shows that default climbs without a single reversal from
-roughly seven percent at grade A to nearly sixty percent at grade G, a
-spread that dwarfs every other factor in the data.
+Default is read off against the grade the lender already assigns, from A
+through G. It climbs without a single reversal, from about seven percent
+at grade A to nearly sixty percent at grade G, a spread that dwarfs
+every other factor in the data.
 
 ``` r
 plot_grade(loans)
@@ -381,10 +426,35 @@ plot_grade(loans)
 
 <img src="README_files/figure-markdown_github/q3-grade-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot gives the default rate across bands of the debt-to-income
-ratio. It shows that default rises smoothly as the ratio grows rather
-than jumping at any threshold, so where to cap it is a tolerance choice
-rather than a natural break.
+Ranking every factor by the gap between its safest and riskiest band
+puts that dominance in one place. Grade tops the list by a wide margin,
+and the things the Institute worried about, ownership and employment
+among them, sit far down it.
+
+``` r
+drivers %>% 
+    kable(caption = "Risk drivers ranked by the gap in default rate between their safest and riskiest band")
+```
+
+| Driver            | Spread |
+|:------------------|-------:|
+| Credit grade      |   50.5 |
+| Interest rate     |   34.7 |
+| Recent inquiries  |   32.6 |
+| Loan term         |   15.4 |
+| Debt-to-income    |   15.0 |
+| Employment length |    9.4 |
+| Revolving use     |    8.9 |
+| Home ownership    |    8.3 |
+| Public records    |    3.8 |
+
+Risk drivers ranked by the gap in default rate between their safest and
+riskiest band
+
+The next view reads the default rate across bands of the debt-to-income
+ratio. Default rises smoothly as the ratio grows rather than breaking at
+any threshold, so where to draw the cap is a tolerance call rather than
+a natural line.
 
 ``` r
 plot_dti(loans)
@@ -392,16 +462,61 @@ plot_dti(loans)
 
 <img src="README_files/figure-markdown_github/q3-dti-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot sets each state’s default rate next to what its grade mix
-alone would predict. It shows that most of the gap between states is
-just grade composition, and that Texas sits almost exactly on the
-national average rather than apart from it.
+Turning that curve into a decision, this reads off the highest
+debt-to-income band that still clears each default tolerance. A stricter
+ceiling buys a lower cap, and no single value stands out as the obvious
+place to cut.
+
+``` r
+cap_tab %>% kable(caption = "The highest debt-to-income band that still clears each default tolerance")
+```
+
+| Default tolerance | DTI cap |
+|:------------------|--------:|
+| 18%               |      10 |
+| 20%               |      15 |
+| 22%               |      20 |
+| 25%               |      25 |
+
+The highest debt-to-income band that still clears each default tolerance
+
+Each state’s actual default rate is set beside what its grade mix alone
+would predict. Most of the gap between states turns out to be grade
+composition, and Texas in particular lands almost exactly on the
+national average rather than standing apart.
 
 ``` r
 plot_states(loans)
 ```
 
 <img src="README_files/figure-markdown_github/q3-states-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
+Listing the states with the largest excess default in either direction,
+with Texas set alongside, separates real geography from grade mix. The
+extremes are modest once grade is accounted for, and Texas carries
+almost no excess at all.
+
+``` r
+bind_rows(slice_max(state, Excess, n = 4), slice_min(state, Excess, n = 4), filter(state, addr_state == "TX")) %>%
+    distinct() %>% arrange(desc(Excess)) %>%
+    kable(col.names = c("State", "Observed %", "Expected %", "Loans", "Excess pp"),
+          caption = "States with the largest positive and negative excess default, with Texas for reference")
+```
+
+| State | Observed % | Expected % | Loans | Excess pp |
+|:------|-----------:|-----------:|------:|----------:|
+| LA    |       26.8 |       22.7 |  4187 |       4.1 |
+| AR    |       27.6 |       23.6 |  2860 |       4.0 |
+| OK    |       26.6 |       22.9 |  3570 |       3.7 |
+| MS    |       26.7 |       23.5 |  2402 |       3.2 |
+| TX    |       22.8 |       22.4 | 32383 |       0.4 |
+| DC    |       14.1 |       20.1 |   880 |      -6.0 |
+| VT    |       15.3 |       22.0 |   770 |      -6.7 |
+| OR    |       14.9 |       21.8 |  4366 |      -6.9 |
+| ME    |       14.4 |       21.8 |  1259 |      -7.4 |
+
+States with the largest positive and negative excess default, with Texas
+for reference
 
 # Question 4, Netflix
 
@@ -444,9 +559,9 @@ topg <- movies %>%
 content_g <- c("drama","comedy","thriller","romance","action","documentation","crime")
 ```
 
-This plot ranks the production countries by how many films each
-contributes to the catalogue. It shows that the library is American at
-its core but far from American alone, with India a clear second.
+Ranking the production countries by how many films each puts into the
+catalogue maps its centre of gravity. The library is American at its
+core but far from American alone, with India a clear second.
 
 ``` r
 plot_countries(movies, 10)
@@ -465,10 +580,10 @@ plot_genre_country(movies, topc, topg)
 
 <img src="README_files/figure-markdown_github/q4-heat-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot places each genre by its typical critic score against its
-typical audience size. It shows that acclaim and popularity pull apart,
-with documentaries scoring high on small audiences and thrillers doing
-the reverse, which is the most useful signal for a new entrant.
+Each genre is placed by its typical critic score against its typical
+audience size. Acclaim and popularity pull apart here, with
+documentaries rating highly on small audiences and thrillers doing the
+reverse, and that split is the most useful signal for a new entrant.
 
 ``` r
 plot_ratings(movies, topg)
@@ -476,9 +591,9 @@ plot_ratings(movies, topg)
 
 <img src="README_files/figure-markdown_github/q4-ratings-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot compares the typical running time of films by production
-country. It shows that length is a national fingerprint too, with Indian
-films running far longer than the American median.
+Running time, compared across production countries, turns out to carry a
+signature of its own. Indian films run far longer than the American
+median, a difference clear enough to read off the chart.
 
 ``` r
 plot_length(movies, topc)
@@ -486,9 +601,9 @@ plot_length(movies, topc)
 
 <img src="README_files/figure-markdown_github/q4-length-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
-This plot sets the typical Netflix score against HBO within each genre.
-It shows that Netflix trades quality for breadth, rating below HBO in
-every genre rather than only on average.
+Setting the typical Netflix score against HBO within each genre gives a
+like-for-like benchmark. Netflix trades quality for breadth, rating
+below HBO in every genre rather than only on the overall average.
 
 ``` r
 plot_hbo(movies, hbo, content_g)
