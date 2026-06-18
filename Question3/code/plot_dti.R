@@ -10,7 +10,7 @@ plot_dti <- function(df){
         group_by(band) %>% # keep band order for the line
         summarise(Default = mean(default) * 100, .groups = "drop") %>%
         ggplot(aes(x = band, y = Default, group = 1)) +
-        # Creative addition: Shaded area underneath the trend to emphasize rising risk
+        # Shaded area underneath the trend to emphasize rising risk
         geom_area(fill = "steelblue4", alpha = 0.3) +
         # Kept the line and points for exact reading
         geom_line(colour = "steelblue4", linewidth = 1) +
