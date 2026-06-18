@@ -6,19 +6,294 @@ output:
 
 # Purpose
 
-Purpose of this work folder.
+This is the root README for my Data Science practical, student number 24991422. It collates the four questions, each of which lives in its own folder and works on a standalone basis. The point of this file is to source each question's functions from its `code/` folder and render the key figures and tables here, so the whole submission can be read and checked from one place.
 
-Ideally store a minimum working example data set in data folder.
+The workflow is the same throughout. Every operation is written as a function, one per file, kept in that question's `code/` folder and sourced together at the top of each section. The data sits in each question's `data/` folder and is not tracked by the repository, so the chunks below expect the files to be in place before the README knits.
 
-Add binary files in bin, and closed R functions in code. Human Readable settings files (e.g. csv) should be placed in settings/
+### How to get started
 
+I set the project up with the following, which creates the repository and the Texevier templates for the three written questions. Question 1 is an `officer` PowerPoint deck rather than a Texevier document, so it has no template.
 
-```{r}
+```{r, eval = FALSE}
+CHOSEN_LOCATION <- "~/DataScience/Practical/"
+fmxdat::make_project(FilePath = glue::glue("{CHOSEN_LOCATION}Solution/"), ProjNam = "24991422")
 
-rm(list = ls()) # Clean your environment:
-gc() # garbage collection - It can be useful to call gc after a large object has been removed, as this may prompt R to return memory to the operating system.
-library(tidyverse)
-list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+Texevier::create_template(directory = glue::glue("{CHOSEN_LOCATION}Solution/24991422/"), template_name = "Question2")
+Texevier::create_template(directory = glue::glue("{CHOSEN_LOCATION}Solution/24991422/"), template_name = "Question3")
+Texevier::create_template(directory = glue::glue("{CHOSEN_LOCATION}Solution/24991422/"), template_name = "Question4")
 ```
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 4)
 
+rm(list = ls()); gc()    # clean the environment
+if(!require(pacman)) install.packages("pacman")
+pacman::p_load(tidyverse, lubridate, scales, ggrepel, knitr, kableExtra)
+```
+
+# Question 1, Coffee
+
+A recommendation deck for stocking the Neelsie Coffee Hub, built in R with `officer` so the slides regenerate from the data. The deck itself is `Question1/Coffee_Hub_Recommendation.pptx`, and the charts inside it come from the functions sourced below. I reproduce them here from the same prepared data the deck uses.
+
+```{r q1-prep}
+list.files('Question1/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+
+Coffee <- load_coffee("Question1/data/Coffee/Coffee.csv") %>% # load and fix the strange characters
+    filter(Cost_Per_100g > 0) %>% # drop the odd zero-cost rows
+    mutate(desc_all = replace_na(desc_all, "")) # a couple of reviews are missing
+
+# roll growing regions up to countries
+region_lookup <- c("Ethiopia"="Ethiopia","Kenya"="Kenya","Colombia"="Colombia","Panama"="Panama", "Hawai"="Hawaii","Guatemala"="Guatemala","Sumatra|Lintong|Sulawesi|Indonesia"="Indonesia", "Costa Rica"="Costa Rica","Brazil"="Brazil","Honduras"="Honduras","Rwanda"="Rwanda")
+
+Coffee <- region_from_origin(Coffee, region_lookup) # tag each coffee's region
+keywords <- derive_keywords(Coffee, n = 12) # indicator words, straight from the reviews
+Coffee <- score_keywords(Coffee, keywords) # score each coffee on those words
+```
+
+The first chart sets the roast strategy. Light and medium-light roasts rate highest, so they should anchor the range.
+
+```{r q1-roast}
+plot_roast(Coffee)
+```
+
+The second shows where the value sits. East African beans rate within a point of Panama at a fraction of the price, which is the core sourcing argument.
+
+```{r q1-region}
+plot_region_value(Coffee)
+```
+
+The flavour fingerprint uses the data-derived words, showing which ones are far more common among the very best coffees than across the shelf as a whole.
+
+```{r q1-flavour}
+plot_flavour_fingerprint(Coffee, keywords)
+```
+
+Finally the supplier leaderboard separates the value champions from the premium showpieces.
+
+```{r q1-supplier}
+plot_supplier_leaderboard(Coffee)
+```
+
+# Question 2, Baby Names
+
+How American culture writes itself into a cradle, read from the full state record of births from 1910 to 2014. The functions collate the national counts, measure how long the top names persist, then test music and screen against the surges directly using the Billboard and HBO datasets.
+
+```{r q2-prep, cache = TRUE}
+list.files('Question2/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+
+nat <- collate_names("Question2/data/US_Baby_names/Baby_Names_By_US_State.rds") # national name counts
+
+tot <- national_totals(nat) # collapsed across gender
+
+charts <- read_rds("Question2/data/US_Baby_names/charts.rds") # weekly Billboard Hot 100
+
+titles <- read_rds("Question2/data/US_Baby_names/HBO_titles.rds") # HBO titles and scores
+
+credits <- read_rds("Question2/data/US_Baby_names/HBO_credits.rds") # HBO cast and characters
+
+pers <- bind_rows(name_persistence(nat, "M"), name_persistence(nat, "F")) # persistence series
+
+ptab <- persistence_table(pers) # summary table
+
+spikes <- find_spikes(nat) # data-driven year-on-year surges
+
+bb <- billboard_name_spikes(nat, charts) # singer-driven names
+
+hbo <- hbo_name_spikes(nat, titles, credits) %>% # character-driven names
+    mutate(across(where(is.character), ~ iconv(., to = "UTF-8", sub = ""))) # drop invalid bytes
+
+matches <- combine_matches(bb, hbo) # names driven by both
+
+sourced <- tag_spike_source(spikes, bb, hbo) # surges labelled by cause
+
+fade_names <- spikes %>% 
+    filter(Count >= 2000) %>% 
+    slice_max(Growth, n = 6) %>% 
+    pull(Name)
+
+dist_names <- tot %>% 
+    group_by(Name) %>%
+    summarise(peak = max(Count), last = Count[which.max(Year)], .groups = "drop") %>%
+    filter(peak >= 10000, last < 0.12 * peak) %>% 
+    slice_max(peak, n = 6) %>%
+    pull(Name)
+
+bb_events  <- bb  %>% 
+    slice_max(Ratio, n = 5) %>% 
+    transmute(Name, Event_Year = Chart_Year)
+
+hbo_events <- hbo %>% 
+    slice_max(Ratio, n = 5) %>% 
+    transmute(Name, Event_Year = release_year)
+ev_events  <- matches %>% transmute(Name, Event_Year, Source)
+```
+
+Persistence first. Each year's 25 most popular names are tracked one, two and three years on, and the rank correlation holds firmly through most of the century before loosening after 1990, more for boys than for girls.
+
+```{r q2-persist, fig.height = 3}
+plot_persistence(pers)
+```
+
+```{r q2-ptab}
+ptab %>% 
+    kable(caption = "Mean rank persistence by gender and horizon, before and from 1990",
+               digits = 3, col.names = c("Gender", "Horizon", "Pre-1990", "1990 onward", "Change"))
+```
+
+The sharpest movements are spikes rather than drifts, and many sit on a clear cultural event, which the surge table labels by the cause the datasets can attribute.
+
+```{r q2-surges}
+sourced %>%
+    slice_max(Growth, n = 10) %>%
+    transmute(Year, Name, Before = Prev, After = Count, `Times bigger` = round(Growth, 1), Cause = Source) %>%
+    kable(caption = "The ten sharpest year-on-year name surges, with the cause our datasets can attribute")
+```
+
+The bubble chart sets these out by name and year, sized by babies at the peak and coloured by whether a singer or a screen character drove the name.
+
+```{r q2-bubble, fig.height = 4, fig.width = 7.5}
+plot_spike_bubble(matches)
+```
+
+A surge is not a lasting name. Plotting the sharpest surges over their full life shows most are fashions that fade within a decade.
+
+```{r q2-fade, fig.height = 3}
+plot_trajectories(tot, fade_names, title = "Fade or stick", subtitle = "The sharpest surges are usually short-lived fashions")
+```
+
+Scaling the biggest names of the century to their own peak tells the same story one name at a time, with even the giants all but vanishing.
+
+```{r q2-dist, fig.height = 3.4}
+plot_name_distribution(tot, dist_names)
+```
+
+Music tests cleanly. Reading the first name of every charting act and asking whether babies followed shows the chart all but creating names, with Sade and Rihanna running from almost nothing into the thousands.
+
+```{r q2-bbtab}
+bb %>% 
+    slice_max(Ratio, n = 8) %>%
+    transmute(Name, Artist = artist, `First charted` = Chart_Year, Before = Pre, Peak = Post, `Times bigger` = Ratio) %>%
+    kable(caption = "Singers whose first name surged in babies after they first reached the Billboard top ten")
+```
+
+```{r q2-bbfig, fig.height = 2.9}
+plot_trajectories(tot, bb_events$Name, events = bb_events, from = 1975,
+                  title = "Named after the charts", subtitle = "Babies named for chart-topping singers")
+```
+
+Screen does the same. Character names like Meadow after The Sopranos and Imani after Coming to America arrive within a year or two of the title.
+
+```{r q2-hbotab}
+hbo %>% slice_max(Ratio, n = 8) %>%
+    transmute(Name, Title = title, Released = release_year, Score = tmdb_score, Peak = Post, `Times bigger` = Ratio) %>%
+    kable(caption = "Screen characters whose first name surged in babies after the title appeared")
+```
+
+```{r q2-hbofig, fig.height = 2.9}
+plot_trajectories(tot, hbo_events$Name, events = hbo_events, from = 1980,
+                  title = "Named after the screen", subtitle = "Babies named for popular screen characters")
+```
+
+Pooling every matched name on the year its trigger landed gives the average naming response, the event study that closes the question.
+
+```{r q2-event, fig.height = 2.9}
+plot_event_study(tot, ev_events)
+```
+
+# Question 3, Loans and Credit
+
+What drives default across a million anonymised Lending Club loans. Default is defined as a loan charged off against one fully paid, and the analysis stays descriptive, reading default rates across the factors the Institute cares about. The data is large, so this chunk is cached.
+
+```{r q3-prep, cache = TRUE}
+list.files('Question3/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+
+loans <- load_loans("Question3/data/Loan_Cred/loan_data.rds") %>%   # the one-million-row extract
+    prep_default()                                                  # resolved loans with the default flag
+```
+
+The grade the lender already assigns is the headline. Default climbs without a reversal from the A grade to the G grade, a gap that dwarfs every other factor.
+
+```{r q3-grade}
+plot_grade(loans)
+```
+
+Debt-to-income gives the Director a lever. Default rises smoothly with the ratio, so a cap is a tolerance choice rather than a natural break.
+
+```{r q3-dti}
+plot_dti(loans)
+```
+
+States differ, but Texas sits squarely at the national average rather than apart from it.
+
+```{r q3-states, fig.height = 6}
+plot_states(loans)
+```
+
+# Question 4, Netflix
+
+A read on the Netflix catalogue for a team planning its own streaming service. The functions parse the genres and countries, then map where the films come from, what each country makes, how they rate and how long they run, with HBO as a benchmark.
+
+```{r q4-prep}
+list.files('Question4/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+
+titles <- load_streaming("Question4/data/netflix/titles.rds") # IMDb-sourced titles
+
+movies <- prep_movies(titles) # films up to 2022
+
+hbo <- load_streaming("Question4/data/HBO_titles.rds") %>% 
+    filter(type == "MOVIE") # HBO films
+
+topc <- movies %>% 
+    unnest(country) %>% 
+    count(country, sort = TRUE) %>% 
+    slice_head(n = 8) %>% 
+    pull(country)
+
+topg <- movies %>% 
+    unnest(genre) %>% 
+    count(genre, sort = TRUE) %>%
+    slice_head(n = 8) %>% 
+    pull(genre)
+
+content_g <- c("drama","comedy","thriller","romance","action","documentation","crime")
+```
+
+The catalogue is American at its core but far from American alone, with India a clear second.
+
+```{r q4-countries}
+plot_countries(movies, 10)
+```
+
+Each tradition makes something different, with India on drama and romance, Japan on action, and the United States and Britain on documentaries.
+
+```{r q4-heat}
+plot_genre_country(movies, topc, topg)
+```
+
+The most useful finding for an investor is that acclaim and popularity pull apart, with documentaries scoring high on small audiences and thrillers doing the reverse.
+
+```{r q4-ratings}
+plot_ratings(movies, topg)
+```
+
+Length is a fingerprint too, with India running far longer than the American median.
+
+```{r q4-length}
+plot_length(movies, topc)
+```
+
+Set against HBO, Netflix trades quality for breadth, scoring lower in every genre.
+
+```{r q4-hbo}
+plot_hbo(movies, hbo, content_g)
+```
+
+The description text confirms the genre map, since each genre reaches for its own vocabulary.
+
+```{r q4-words}
+distinctive_words(movies, content_g) %>%
+    group_by(genre) %>%
+    summarise(`Distinctive words` = str_c(word, collapse = ", "), .groups = "drop") %>%
+    kable()
+```
