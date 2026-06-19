@@ -382,6 +382,24 @@ thriller & suspects, thriller, investigating, kills, heist, killers\\
 \end{longtable}
 \endgroup{}
 
+Genres are not worn one at a time, and how they combine says as much as
+how often they appear. Figure \ref{cooccur} reads each cell as the
+chance that a film carrying the row genre also carries the column genre,
+with the diagonal fixed at one by construction. Drama is the clear hub,
+since close to three in four romances and roughly two in three crime and
+thriller films are also tagged drama, so a catalogue built on drama
+quietly underwrites most of the other genres rather than competing with
+them.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Question4_files/figure-latex/cooccur-1} 
+
+}
+
+\caption{Conditional genre co-occurrence across films.\label{cooccur}}\label{fig:cooccur}
+\end{figure}
+
 \section*{Acclaim and popularity pull
 apart}\label{acclaim-and-popularity-pull-apart}
 \addcontentsline{toc}{section}{Acclaim and popularity pull apart}
@@ -405,6 +423,24 @@ other.
 \caption{Median IMDb score against median votes, by genre.\label{ratefig}}\label{fig:ratefig}
 \end{figure}
 
+The genre medians hide what individual films do. Figure \ref{scorehex}
+bins every film by its score and its audience, with a fitted line
+through the cloud. At the film level the tilt is gently positive, with a
+correlation near 0.21 between score and log votes, so a more-watched
+film tends to rate a little higher even though the genre medians pull
+the other way. The contrast is a useful caution, since the divergence
+the team should plan around lives at the level of genre strategy, not
+within any single title.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Question4_files/figure-latex/scorehex-1} 
+
+}
+
+\caption{Film density across IMDb score and votes, with a fitted line.\label{scorehex}}\label{fig:scorehex}
+\end{figure}
+
 \section*{How long the movies run}\label{how-long-the-movies-run}
 \addcontentsline{toc}{section}{How long the movies run}
 
@@ -422,6 +458,24 @@ is not a neutral choice but a fingerprint of where a film was made.
 }
 
 \caption{Median film runtime by country.\label{lenfig}}\label{fig:lenfig}
+\end{figure}
+
+The median runtimes earlier hint at a difference that the full
+distributions make vivid. Figure \ref{runtimeridges} draws the runtime
+distribution for each major producer as a ridge, ordered by the typical
+length. The Indian films sit visibly to the right of the American ones
+rather than merely averaging higher, so the longer film is the rule
+across that tradition and not the work of a few outliers, which is a
+real production fact a new entrant would have to budget and schedule
+around.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Question4_files/figure-latex/runtimeridges-1} 
+
+}
+
+\caption{Runtime distribution by major producing country.\label{runtimeridges}}\label{fig:runtimeridges}
 \end{figure}
 
 \section*{Netflix set against HBO}\label{netflix-set-against-hbo}
@@ -490,6 +544,31 @@ PG-13 & 490\\
 PG & 287\\
 \bottomrule
 \end{longtable}
+
+\section*{The verdict, to stream and
+how}\label{the-verdict-to-stream-and-how}
+\addcontentsline{toc}{section}{The verdict, to stream and how}
+
+Read through the four lenses the team asked for, Netflix resolves into
+one lesson. The platform has chosen volume, holding 3,759 films from 103
+countries, and a rival can fill a catalogue the same way, by leaning on
+a few productive traditions such as the Indian studio system behind Shah
+Rukh Khan and his 30 films. The harder truth sits in the ratings, where
+acclaim and reach pull apart, with documentaries scoring highest near
+7.1 on the smallest audiences while thrillers draw the largest crowds
+and rate among the lowest. No genre delivers both, and the HBO benchmark
+drives it home, since HBO outscores Netflix in every genre on the
+median, 6.9 against 6.4, a half point bought by curation over scale.
+
+So the answer is to stream, but with intent rather than breadth, a
+catalogue built from a few strong production bases, planned genre by
+genre, and weighted toward quality where the team most wants to be
+judged. That reading carries the limits of its data, since the record
+runs only to 2022 and its IMDb scores measure reception rather than
+profit, with demand, licensing cost and subscriber behaviour all left
+for other evidence to settle. What the catalogue can settle, it does.
+Breadth fills the shelves, but curation earns the rating, and a new
+entrant should buy the second even at the cost of the first.
 
 \bibliography{Tex/ref}
 

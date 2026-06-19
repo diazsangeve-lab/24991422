@@ -106,7 +106,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
 rm(list = ls()); gc()
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, scales, ggrepel, knitr, kableExtra)
+pacman::p_load(tidyverse, scales, ggrepel, knitr, kableExtra, hexbin, ggridges)
 
 # Source every function in the code folder:
 list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
@@ -234,6 +234,12 @@ words_tab %>% rename(Genre = genre) %>%
   kable_styling(latex_options = "hold_position", font_size = 9)
 ```
 
+Genres are not worn one at a time, and how they combine says as much as how often they appear. Figure \ref{cooccur} reads each cell as the chance that a film carrying the row genre also carries the column genre, with the diagonal fixed at one by construction. Drama is the clear hub, since close to three in four romances and roughly two in three crime and thriller films are also tagged drama, so a catalogue built on drama quietly underwrites most of the other genres rather than competing with them.
+
+```{r cooccur, fig.cap = "Conditional genre co-occurrence across films.\\label{cooccur}", fig.height = 3.6, fig.width = 7}
+plot_genre_cooccur(movies, content_g)
+```
+
 # Acclaim and popularity pull apart {-}
 
 The most useful finding for an investor is that the crowd and the critics want different things. Figure \ref{ratefig} places each genre by its median score against its median votes, and the two run in opposite directions. Thrillers and action draw the largest audiences yet sit near the bottom for rating, while documentaries earn the highest scores, near `r round(doc_s,1)`, on the smallest audiences. A thriller pulls a median `r format(round(thr_v), big.mark=",")` votes against a documentary's `r format(round(doc_v), big.mark=",")`, so a catalogue chasing both prestige and reach needs both kinds of title and should not expect one to deliver the other.
@@ -242,12 +248,24 @@ The most useful finding for an investor is that the crowd and the critics want d
 plot_ratings(movies, topg)
 ```
 
+The genre medians hide what individual films do. Figure \ref{scorehex} bins every film by its score and its audience, with a fitted line through the cloud. At the film level the tilt is gently positive, with a correlation near 0.21 between score and log votes, so a more-watched film tends to rate a little higher even though the genre medians pull the other way. The contrast is a useful caution, since the divergence the team should plan around lives at the level of genre strategy, not within any single title.
+
+```{r scorehex, fig.cap = "Film density across IMDb score and votes, with a fitted line.\\label{scorehex}", fig.height = 3.4, fig.width = 7}
+plot_score_hex(movies)
+```
+
 # How long the movies run {-}
 
 Length is another place where the national traditions diverge. Figure \ref{lenfig} shows the median runtime by country, and India stands apart at `r round(ind_rt)` minutes against an American median of `r round(us_rt)`, a difference of more than half an hour that reflects the song-and-interval format of Bollywood cinema. For a platform deciding how to fill a slate, runtime is not a neutral choice but a fingerprint of where a film was made.
 
 ```{r lenfig, fig.cap = "Median film runtime by country.\\label{lenfig}", fig.height = 3.0, fig.width = 7}
 plot_length(movies, topc)
+```
+
+The median runtimes earlier hint at a difference that the full distributions make vivid. Figure \ref{runtimeridges} draws the runtime distribution for each major producer as a ridge, ordered by the typical length. The Indian films sit visibly to the right of the American ones rather than merely averaging higher, so the longer film is the rule across that tradition and not the work of a few outliers, which is a real production fact a new entrant would have to budget and schedule around.
+
+```{r runtimeridges, fig.cap = "Runtime distribution by major producing country.\\label{runtimeridges}", fig.height = 3.4, fig.width = 7}
+plot_runtime_ridges(movies, topc)
 ```
 
 # Netflix set against HBO {-}
@@ -273,3 +291,9 @@ age_tab %>% rename(`Age rating` = rating) %>%
   kable(caption = "\\label{agetab}Most common age ratings among Netflix films (classic catalogue export)", booktabs = TRUE) %>%
   kable_styling(latex_options = "hold_position")
 ```
+
+# The verdict, to stream and how {-}
+
+Read through the four lenses the team asked for, Netflix resolves into one lesson. The platform has chosen volume, holding `r format(n_movie, big.mark=",")` films from `r n_ctry` countries, and a rival can fill a catalogue the same way, by leaning on a few productive traditions such as the Indian studio system behind `r top_actor` and his `r top_actor_n` films. The harder truth sits in the ratings, where acclaim and reach pull apart, with documentaries scoring highest near `r round(doc_s,1)` on the smallest audiences while thrillers draw the largest crowds and rate among the lowest. No genre delivers both, and the HBO benchmark drives it home, since HBO outscores Netflix in every genre on the median, `r round(hbo_med,1)` against `r round(nf_med,1)`, a half point bought by curation over scale.
+
+So the answer is to stream, but with intent rather than breadth, a catalogue built from a few strong production bases, planned genre by genre, and weighted toward quality where the team most wants to be judged. That reading carries the limits of its data, since the record runs only to 2022 and its IMDb scores measure reception rather than profit, with demand, licensing cost and subscriber behaviour all left for other evidence to settle. What the catalogue can settle, it does. Breadth fills the shelves, but curation earns the rating, and a new entrant should buy the second even at the cost of the first.

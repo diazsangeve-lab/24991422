@@ -109,7 +109,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
 rm(list = ls()); gc()
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, scales, knitr, kableExtra)
+pacman::p_load(tidyverse, scales, knitr, kableExtra, ggridges)
 
 # Source every function in the code folder:
 list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
@@ -224,6 +224,18 @@ ptab %>%
 - Girls' names were always looser and slip less, from `r g3_pre` to `r g3_post` at three years, so the change is real but gentler than for boys.
 - For the agency this means a name borrowed from today's culture is a weaker long-term bet than it would have been a generation ago, which is exactly what the surge analysis below explains.
 
+Fashion does not stop at the whole name, it reaches down to the opening letter. Figure \ref{initialheat} maps the share of births starting with each letter across the decades, and whole rows brighten and dim as initials move in and out of favour. The turnover at the level of a single letter mirrors the turnover in the names themselves, which is a quiet confirmation that naming is governed by fashion almost everywhere one looks.
+
+```{r initialheat, fig.cap = "Share of births by opening letter, across decades.\\label{initialheat}", fig.height = 3.6, fig.width = 7}
+plot_initial_heat(tot)
+```
+
+Length carries its own quiet history. Figure \ref{lenridges} stacks the distribution of name length for each decade, weighted by births so the ridges reflect babies rather than rare names. The weighted mean climbs from about 5.7 letters through the middle of the century to roughly 6.2 in the 1980s and 1990s before easing back toward 5.9, so the long American name was a late-century fashion that has since softened rather than a permanent shift.
+
+```{r lenridges, fig.cap = "Name length distribution by decade, births weighted.\\label{lenridges}", fig.height = 3.6, fig.width = 7}
+plot_length_ridges(nat)
+```
+
 # When a name suddenly arrives {-}
 
 The sharpest movements in naming are not drifts but spikes, and they can be found
@@ -265,6 +277,12 @@ plot_name_distribution(tot, dist_names)
 
 - Even the giants are temporary. Linda and Lisa tower over their decades and then all but vanish, each now a fraction of a percent of its own peak.
 - This is the persistence finding seen one name at a time. No name holds the top for long, the same impermanence the Spearman series measured in aggregate.
+
+The spread of names is not only about which ones rise, it is about how thinly births are spread across all of them. Figure \ref{concentration} tracks the share of babies carrying one of the ten most popular names each year, fitted with a linear trend. The concentration falls from roughly nineteen percent in 1910 to under six percent by 2014, so parents now draw from a far wider pool and the very top names command a shrinking slice of each cohort.
+
+```{r concentration, fig.cap = "Share of births held by the ten most popular names each year.\\label{concentration}", fig.height = 3.0, fig.width = 7}
+plot_name_concentration(tot)
+```
 
 # The sound and the screen {-}
 

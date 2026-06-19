@@ -209,6 +209,29 @@ ptab %>%
 
 Mean rank persistence by gender and horizon, before and from 1990
 
+Mapping the share of births that open with each letter across the
+decades turns the alphabet itself into a fashion chart. Whole rows
+brighten and fade as initials move in and out of favour, so the churn
+that drives names runs right down to the single opening letter.
+
+``` r
+plot_initial_heat(tot)
+```
+
+<img src="README_files/figure-markdown_github/q2-initials-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
+Stacking the distribution of name length for each decade, weighted by
+births, gives one ridge per generation. The weighted mean climbs from
+about 5.7 letters mid-century to roughly 6.2 in the 1980s and 1990s and
+then eases back toward 5.9, so the long name was a late-century fashion
+rather than a lasting change.
+
+``` r
+plot_length_ridges(nat)
+```
+
+<img src="README_files/figure-markdown_github/q2-lenridges-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
 Here are the ten sharpest year-on-year surges, each tagged with the
 cause the datasets can attribute. The biggest movements are sudden
 spikes rather than slow drifts, and most of them line up with a song or
@@ -268,6 +291,18 @@ plot_name_distribution(tot, dist_names)
 ```
 
 <img src="README_files/figure-markdown_github/q2-dist-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
+Tracking the share of babies who carry one of the ten most popular names
+each year, fitted with a straight trend, measures how thinly naming is
+spread. The concentration falls from about nineteen percent in 1910 to
+under six percent by 2014, so the top names now command a far smaller
+slice of each cohort.
+
+``` r
+plot_name_concentration(tot)
+```
+
+<img src="README_files/figure-markdown_github/q2-concentration-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 This is the roll of singers whose first name jumped in newborns once
 they first cracked the Billboard top ten. The chart all but manufactures
@@ -457,6 +492,17 @@ drivers %>%
 Risk drivers ranked by the gap in default rate between their safest and
 riskiest band
 
+Laying the default rate out in every grade and debt-to-income cell puts
+the two strongest factors on one canvas. Reading down the grade axis
+moves default far more than reading across the debt axis, so grade keeps
+doing most of the sorting inside any debt band.
+
+``` r
+plot_grade_dti_heat(loans)
+```
+
+<img src="README_files/figure-markdown_github/q3-heat-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
 The next view reads the default rate across bands of the debt-to-income
 ratio. Default rises smoothly as the ratio grows rather than breaking at
 any threshold, so where to draw the cap is a tolerance call rather than
@@ -485,6 +531,18 @@ cap_tab %>% kable(caption = "The highest debt-to-income band that still clears e
 | 25%               |      25 |
 
 The highest debt-to-income band that still clears each default tolerance
+
+Drawing the interest rate as a violin within each grade, with a boxplot
+inside, shows the spread rather than just the average. The bands step
+cleanly up the scale with little overlap, so a loan’s grade fixes its
+price to a narrow range and the rate adds almost nothing as a separate
+signal.
+
+``` r
+plot_rate_violin(loans)
+```
+
+<img src="README_files/figure-markdown_github/q3-violin-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Each state’s actual default rate is set beside what its grade mix alone
 would predict. Most of the gap between states turns out to be grade
@@ -523,6 +581,18 @@ bind_rows(slice_max(state, Excess, n = 4), slice_min(state, Excess, n = 4), filt
 
 States with the largest positive and negative excess default, with Texas
 for reference
+
+Fitting a logistic regression of default on the debt-to-income ratio,
+run separately for each term, lets the model draw the risk curve rather
+than a set of bars. Default climbs steadily with debt under both terms,
+and the sixty-month curve sits above the thirty-six-month one the whole
+way, so term and debt compound.
+
+``` r
+plot_dti_logit(loans)
+```
+
+<img src="README_files/figure-markdown_github/q3-logit-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 # Question 4, Netflix
 
@@ -600,6 +670,19 @@ plot_genre_country(movies, topc, topg)
 
 <img src="README_files/figure-markdown_github/q4-heat-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
+Reading each cell as the chance that a film with the row genre also
+carries the column genre, with the diagonal fixed at one, shows how
+genres combine rather than just how common they are. Drama is the hub,
+with close to three in four romances and about two in three crime and
+thriller films also tagged drama, so a drama base quietly underwrites
+most of the catalogue.
+
+``` r
+plot_genre_cooccur(movies, content_g)
+```
+
+<img src="README_files/figure-markdown_github/q4-cooccur-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
 Each genre is placed by its typical critic score against its typical
 audience size. Acclaim and popularity pull apart here, with
 documentaries rating highly on small audiences and thrillers doing the
@@ -611,6 +694,18 @@ plot_ratings(movies, topg)
 
 <img src="README_files/figure-markdown_github/q4-ratings-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
+Binning every film by its score against its audience size, with a fitted
+line through the cloud, shows where the catalogue really sits rather
+than where the genre medians do. At the film level the tilt is gently
+positive, a correlation near 0.21, so a more-watched film rates slightly
+higher even though the genre medians pull apart.
+
+``` r
+plot_score_hex(movies)
+```
+
+<img src="README_files/figure-markdown_github/q4-hex-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
 Running time, compared across production countries, turns out to carry a
 signature of its own. Indian films run far longer than the American
 median, a difference clear enough to read off the chart.
@@ -620,6 +715,18 @@ plot_length(movies, topc)
 ```
 
 <img src="README_files/figure-markdown_github/q4-length-1.png" alt="" width="100%" style="display: block; margin: auto;" />
+
+Drawing each major producer’s runtime distribution as a ridge, ordered
+by typical length, turns the median figures into full shapes. The Indian
+films sit visibly to the right of the American ones rather than just
+averaging higher, so the longer film is the rule across that tradition
+and not a handful of outliers.
+
+``` r
+plot_runtime_ridges(movies, topc)
+```
+
+<img src="README_files/figure-markdown_github/q4-ridges-1.png" alt="" width="100%" style="display: block; margin: auto;" />
 
 Setting the typical Netflix score against HBO within each genre gives a
 like-for-like benchmark. Netflix trades quality for breadth, rating

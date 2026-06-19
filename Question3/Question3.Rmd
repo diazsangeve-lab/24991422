@@ -316,6 +316,12 @@ ir_grade %>%
   kable_styling(latex_options = "hold_position")
 ```
 
+The claim that rates follow credit deserves to be seen rather than asserted. Figure \ref{rateviolin} draws the distribution of interest rate within each grade, and the violins step cleanly up the scale with very little overlap between neighbours. A loan's grade fixes its price to within a narrow band, which is the visual form of the near-perfect correlation between the two and explains why the interest rate adds almost nothing to grade as a separate signal.
+
+```{r rateviolin, fig.cap = "Interest rate distribution within each credit grade.\\label{rateviolin}", fig.height = 3.0, fig.width = 7}
+plot_rate_violin(loans)
+```
+
 # Where borrowers default, and whether Texas stands apart {-}
 
 States do differ, but less than the raw numbers suggest and less than a story about culture would imply. Figure \ref{statefig} ranks the states, and the spread runs from the low teens to the high twenties, a gap of about thirteen points between the safest state and the riskiest. The pattern has a geography to it, with the lowest rates in the Northeast and Pacific Northwest and the highest across the Deep South, which is the kind of regularity that tempts the word culture.
@@ -325,6 +331,12 @@ plot_states(loans)
 ```
 
 Most of that spread, though, is composition rather than culture. When each state is measured against the default rate its own grade mix would predict, the gaps narrow sharply. The Deep South still carries a genuine excess of a few points above expectation, so a modest residual culture effect may exist, but it is a fraction of the headline thirteen. Texas, the Director's own state, is the clearest case of all. It defaults at `r tx$Observed` percent against a national rest near the same level, its grade-adjusted excess is just `r tx$Excess` of a point, and it tracks the national grade pattern almost exactly. On this evidence Texas is unremarkable, neither a haven nor a hotspot, which is itself a useful thing for a Texas director to know.
+
+Putting the two strongest factors on one canvas settles how they compare. Figure \ref{gradedtiheat} shows the default rate in every grade and debt-to-income cell, with the number printed in each. Moving down the grade axis shifts default far more than moving across the debt axis, so within any debt band the grade still does most of the sorting, and a high grade survives a high debt load better than a low grade survives a low one.
+
+```{r gradedtiheat, fig.cap = "Default rate by grade and debt-to-income band.\\label{gradedtiheat}", fig.height = 3.6, fig.width = 7}
+plot_grade_dti_heat(loans)
+```
 
 # A defensible debt-to-income cap {-}
 
@@ -341,6 +353,12 @@ cap_tab %>%
 ```
 
 A book willing to tolerate roughly a fifth of resolved loans defaulting can lend up to a debt-to-income near twenty, while a more cautious book aiming below that should draw the line closer to fifteen. Whether the cap should move by state is a fair question, and the answer is a qualified yes. The same high debt load carries very different risk across states, with default above a debt-to-income of twenty running near `r round(hidti_lo$Default,0)` percent in the safest state and above `r round(hidti_hi$Default,0)` in the riskiest, so a lender could reasonably tighten the cap where the local book runs hot. Texas again sits close to the national line, so a single national cap would serve the Director's own state well enough.
+
+The relationship between debt and default is worth fitting rather than only banding. Figure \ref{dtilogit} shows a logistic regression of default on the debt-to-income ratio, run separately for each term, so the curve is the model's own estimate of risk rather than a histogram. Default rises steadily with debt under both terms, and the sixty-month curve sits clearly above the thirty-six-month one across the whole range, which confirms that term and debt compound rather than cancel.
+
+```{r dtilogit, fig.cap = "Logistic fit of default probability on debt-to-income, by term.\\label{dtilogit}", fig.height = 3.2, fig.width = 7}
+plot_dti_logit(loans)
+```
 
 # What this means for assessing a borrower {-}
 

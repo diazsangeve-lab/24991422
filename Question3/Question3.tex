@@ -460,6 +460,23 @@ G & 28.8\\
 \bottomrule
 \end{longtable}
 
+The claim that rates follow credit deserves to be seen rather than
+asserted. Figure \ref{rateviolin} draws the distribution of interest
+rate within each grade, and the violins step cleanly up the scale with
+very little overlap between neighbours. A loan's grade fixes its price
+to within a narrow band, which is the visual form of the near-perfect
+correlation between the two and explains why the interest rate adds
+almost nothing to grade as a separate signal.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Question3_files/figure-latex/rateviolin-1} 
+
+}
+
+\caption{Interest rate distribution within each credit grade.\label{rateviolin}}\label{fig:rateviolin}
+\end{figure}
+
 \section*{Where borrowers default, and whether Texas stands
 apart}\label{where-borrowers-default-and-whether-texas-stands-apart}
 \addcontentsline{toc}{section}{Where borrowers default, and whether
@@ -493,6 +510,23 @@ grade-adjusted excess is just 0.4 of a point, and it tracks the national
 grade pattern almost exactly. On this evidence Texas is unremarkable,
 neither a haven nor a hotspot, which is itself a useful thing for a
 Texas director to know.
+
+Putting the two strongest factors on one canvas settles how they
+compare. Figure \ref{gradedtiheat} shows the default rate in every grade
+and debt-to-income cell, with the number printed in each. Moving down
+the grade axis shifts default far more than moving across the debt axis,
+so within any debt band the grade still does most of the sorting, and a
+high grade survives a high debt load better than a low grade survives a
+low one.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Question3_files/figure-latex/gradedtiheat-1} 
+
+}
+
+\caption{Default rate by grade and debt-to-income band.\label{gradedtiheat}}\label{fig:gradedtiheat}
+\end{figure}
 
 \section*{A defensible debt-to-income
 cap}\label{a-defensible-debt-to-income-cap}
@@ -537,6 +571,23 @@ near 16 percent in the safest state and above 32 in the riskiest, so a
 lender could reasonably tighten the cap where the local book runs hot.
 Texas again sits close to the national line, so a single national cap
 would serve the Director's own state well enough.
+
+The relationship between debt and default is worth fitting rather than
+only banding. Figure \ref{dtilogit} shows a logistic regression of
+default on the debt-to-income ratio, run separately for each term, so
+the curve is the model's own estimate of risk rather than a histogram.
+Default rises steadily with debt under both terms, and the sixty-month
+curve sits clearly above the thirty-six-month one across the whole
+range, which confirms that term and debt compound rather than cancel.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Question3_files/figure-latex/dtilogit-1} 
+
+}
+
+\caption{Logistic fit of default probability on debt-to-income, by term.\label{dtilogit}}\label{fig:dtilogit}
+\end{figure}
 
 \section*{What this means for assessing a
 borrower}\label{what-this-means-for-assessing-a-borrower}

@@ -13,3 +13,6 @@ scales
 ggrepel
 knitr
 kableExtra
+maps
+hexbin
+ggridges
