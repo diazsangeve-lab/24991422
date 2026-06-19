@@ -250,7 +250,7 @@ plot_ratings(movies, topg)
 
 The genre medians hide what individual films do. Figure \ref{scorehex} bins every film by its score and its audience, with a fitted line through the cloud. At the film level the tilt is gently positive, with a correlation near 0.21 between score and log votes, so a more-watched film tends to rate a little higher even though the genre medians pull the other way. The contrast is a useful caution, since the divergence the team should plan around lives at the level of genre strategy, not within any single title.
 
-```{r scorehex, fig.cap = "Film density across IMDb score and votes, with a fitted line.\\label{scorehex}", fig.height = 3.4, fig.width = 7}
+```{r scorehex, fig.cap = "Film density across IMDb score and votes, with a fitted line.\\label{scorehex}", fig.height = 4, fig.width = 7}
 plot_score_hex(movies)
 ```
 
